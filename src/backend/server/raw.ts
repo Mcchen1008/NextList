@@ -85,7 +85,24 @@ rawRouter.get("/*", async (c) => {
           const fileItem = await driver.get(reqPath, resolved.physical)
 
           if (fileItem && fileItem.raw_url) {
-            if (isProxy) {
+            // WebDAV can opt out of proxying: when proxy_download is disabled
+            // the direct (/d) link becomes a 302 redirect to the upstream URL.
+            let useProxy = isProxy
+            if (!useProxy && normDriver === "webdav") {
+              const addition =
+                typeof resolved.storage.addition === "string"
+                  ? JSON.parse(resolved.storage.addition || "{}")
+                  : resolved.storage.addition || {}
+              const proxyDownload = addition?.proxy_download
+              if (
+                proxyDownload !== false &&
+                proxyDownload !== "false" &&
+                proxyDownload !== "0"
+              ) {
+                useProxy = true
+              }
+            }
+            if (useProxy) {
               console.log(
                 `[rawRouter] Proxying download for '${reqPath}' via ${resolved.storage.driver}`,
               )

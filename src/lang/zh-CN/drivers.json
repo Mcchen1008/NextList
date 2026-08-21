@@ -1427,16 +1427,13 @@
     "root_folder_path": "Root folder path"
   },
   "WebDav": {
-    "address": "Address",
-    "password": "Password",
-    "root_folder_path": "Root folder path",
-    "tls_insecure_skip_verify": "Tls insecure skip verify",
-    "username": "Username",
-    "vendor": "Vendor",
-    "vendors": {
-      "other": "Other",
-      "sharepoint": "Sharepoint"
-    }
+    "address": "服务器地址",
+    "password": "密码",
+    "proxy_download": "代理下载",
+    "proxy_download-tips": "通过本机代理下载；关闭则 302 重定向直连源站",
+    "root_folder_path": "根目录路径",
+    "tls_insecure_skip_verify": "跳过 TLS 证书校验",
+    "username": "用户名"
   },
   "WeiYun": {
     "cookies": "Cookies",

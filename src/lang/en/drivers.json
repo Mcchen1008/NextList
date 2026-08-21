@@ -1429,14 +1429,11 @@
   "WebDav": {
     "address": "Address",
     "password": "Password",
+    "proxy_download": "Proxy download",
+    "proxy_download-tips": "Download through the local proxy; disable to 302 redirect directly to the source",
     "root_folder_path": "Root folder path",
     "tls_insecure_skip_verify": "Tls insecure skip verify",
-    "username": "Username",
-    "vendor": "Vendor",
-    "vendors": {
-      "other": "Other",
-      "sharepoint": "Sharepoint"
-    }
+    "username": "Username"
   },
   "WeiYun": {
     "cookies": "Cookies",
