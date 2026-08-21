@@ -15,7 +15,6 @@
     "about": "About",
     "backup-restore": "Backup & Restore",
     "home": "Home",
-    "indexes": "Indexes",
     "sso": "Single Sign-On",
     "docs": "Documentation",
     "ldap": "LDAP",
@@ -26,11 +25,7 @@
   "title": "NextList Management",
   "not_admin": "You are not an admin user, please login with an admin account.",
   "logout_success": "Logout successful",
-  "send": "Send",
-  "receive": "Receive",
-  "received_msgs": "Received messages",
   "add_storage-tips": "You may need to fill in some information in the newly opened tab.",
-  "messenger-tips": "You may need to fill in some information on this tab as prompted.",
   "load_default_setting": "Load default settings",
   "load_default_setting_success": "Loaded successfully, not saved"
 }

@@ -66,8 +66,6 @@
   "max_server_upload_speed": "Max server upload speed",
   "non_efs_zip_encoding": "Alternative encoding for ZIP Files",
   "ocr_api": "Ocr api",
-  "offline_download_task_threads_num": "Offline download task threads num",
-  "offline_download_transfer_task_threads_num": "Offline download transfer task threads num",
   "package_download": "Package download",
   "pagination_type": "Pagination type",
   "pagination_types": {

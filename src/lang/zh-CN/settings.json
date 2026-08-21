@@ -66,8 +66,6 @@
   "max_server_upload_speed": "服务端最大上传限速",
   "non_efs_zip_encoding": "ZIP 文件备选编码",
   "ocr_api": "OCR 识别接口",
-  "offline_download_task_threads_num": "离线下载任务并发数",
-  "offline_download_transfer_task_threads_num": "离线下载转存任务并发数",
   "package_download": "允许打包下载",
   "pagination_type": "分页展示模式",
   "pagination_types": {

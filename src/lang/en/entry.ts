@@ -3,7 +3,6 @@ import drivers from "./drivers.json"
 import global from "./global.json"
 import home from "./home.json"
 import index from "./index.json"
-import indexes from "./indexes.json"
 import login from "./login.json"
 import manage from "./manage.json"
 import metas from "./metas.json"
@@ -19,7 +18,6 @@ export default {
   drivers,
   global,
   home,
-  indexes,
   login,
   manage,
   metas,

@@ -6,7 +6,6 @@ import { TbCheckbox } from "solid-icons/tb"
 import { objStore, selectAll, State, toggleCheckbox, userCan } from "~/store"
 import { bus } from "~/utils"
 import { operations } from "./operations"
-import { IoMagnetOutline } from "solid-icons/io"
 import { AiOutlineCloudUpload, AiOutlineSetting } from "solid-icons/ai"
 import { RiSystemRefreshLine } from "solid-icons/ri"
 import { usePath, useRouter } from "~/hooks"
@@ -122,16 +121,6 @@ export const Right = () => {
                   tips="upload"
                   onClick={() => {
                     bus.emit("tool", "upload")
-                  }}
-                />
-              </Show>
-              <Show when={!isShare() && userCan("offline_download")}>
-                <RightIcon
-                  as={IoMagnetOutline}
-                  pl="0"
-                  tips="offline_download"
-                  onClick={() => {
-                    bus.emit("tool", "offline_download")
                   }}
                 />
               </Show>
