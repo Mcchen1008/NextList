@@ -9,7 +9,7 @@ import {
 import { createMemo, createSignal, For, Show } from "solid-js"
 import { MaybeLoading, ModalInput } from "~/components"
 import { useFetch, useRouter, useT } from "~/hooks"
-import { handleResp, joinBase, notify, r } from "~/utils"
+import { handleResp, notify, r } from "~/utils"
 import {
   Addition,
   DriverConfig,
@@ -201,7 +201,6 @@ const AddOrEdit = () => {
           onClick={async () => {
             if (drivers()[storage.driver].config.need_ms) {
               notify.info(t("manage.add_storage-tips"))
-              window.open(joinBase("/@manage/messenger"), "_blank")
             }
             const resp = await ok()
             // TODO maybe can use handleRrespWithNotifySuccess

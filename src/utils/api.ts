@@ -9,9 +9,6 @@ import {
   RenameObj,
   ArchiveMeta,
   PPageResp,
-  TorrentInfo,
-  TorrentUploadParseResult,
-  TorrentRapidUploadResult,
 } from "~/types"
 import { r } from "./request"
 
@@ -215,15 +212,6 @@ export const fsArchiveDecompress = (
   })
 }
 
-export const offlineDownload = (
-  path: string,
-  urls: string[],
-  tool: string,
-  delete_policy: string,
-): PEmptyResp => {
-  return r.post(`/fs/add_offline_download`, { path, urls, tool, delete_policy })
-}
-
 export const fetchText = async (
   url: string,
   ts = true,
@@ -271,39 +259,4 @@ export const fsSearch = async (
     per_page,
     password,
   })
-}
-
-export const buildIndex = async (paths = ["/"], max_depth = -1): PEmptyResp => {
-  return r.post("/admin/index/build", {
-    paths,
-    max_depth,
-  })
-}
-
-export const updateIndex = async (paths = [], max_depth = -1): PEmptyResp => {
-  return r.post("/admin/index/update", {
-    paths,
-    max_depth,
-  })
-}
-
-// ========== Torrent 相关 API ==========
-
-export const torrentParse = (torrent_data: string): PResp<TorrentInfo> => {
-  return r.post("/fs/torrent/parse", { torrent_data })
-}
-
-export const torrentUploadParse = (
-  file: File,
-): PResp<TorrentUploadParseResult> => {
-  const formData = new FormData()
-  formData.append("torrent", file)
-  return r.post("/fs/torrent/upload_parse", formData)
-}
-
-export const torrentRapidUpload = (
-  torrent_data: string,
-  path: string,
-): PResp<TorrentRapidUploadResult> => {
-  return r.post("/fs/torrent/rapid_upload", { torrent_data, path })
 }
