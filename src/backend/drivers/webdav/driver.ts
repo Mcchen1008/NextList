@@ -56,11 +56,11 @@ export class WebdavDriver implements StorageDriver {
     return this.address + encodePath(full)
   }
 
-  /** Headers used for every WebDAV request (auth + common extras). */
-  private baseHeaders(): Record<string, string> {
+  /** Headers for the proxy GET download (auth + Translate, no Depth). */
+  private downloadHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
-      // Some WebDAV servers (e.g. SharePoint) return HTML error pages unless
-      // `Translate: f` is set. It is harmless for standard servers.
+      // Some WebDAV servers (e.g. SharePoint) reject downloads with a 554
+      // unless `Translate: f` is set. Keep it for the proxy GET too.
       Translate: "f",
     }
     if (this.addition.username) {
@@ -71,6 +71,11 @@ export class WebdavDriver implements StorageDriver {
     return headers
   }
 
+  /** Headers used for every WebDAV request (auth + common extras). */
+  private baseHeaders(): Record<string, string> {
+    return this.downloadHeaders()
+  }
+
   private async propfind(
     url: string,
     depth: "0" | "1",
@@ -79,7 +84,7 @@ export class WebdavDriver implements StorageDriver {
     headers["Depth"] = depth
     const res = await fetch(url, { method: "PROPFIND", headers })
     if (res.status === 404) return res
-    if (!res.ok && res.status < 200 && res.status >= 300) {
+    if (!res.ok) {
       // Allow 404 (handled by callers), but surface other failures.
       throw new Error(
         `WebDAV PROPFIND failed: ${res.status} ${res.statusText}`,
@@ -140,12 +145,6 @@ export class WebdavDriver implements StorageDriver {
     }
 
     const name = basename(physicalPath) || "root"
-    const authHeaders: Record<string, string> = {}
-    if (this.addition.username) {
-      authHeaders["Authorization"] =
-        "Basic " +
-        basicAuth(this.addition.username, this.addition.password || "")
-    }
 
     return {
       name,
@@ -155,7 +154,10 @@ export class WebdavDriver implements StorageDriver {
       sign: "",
       type: calcFileType(name, entry.isDir),
       raw_url: entry.isDir ? "" : url,
-      raw_url_headers: entry.isDir ? undefined : authHeaders,
+      // Reuse downloadHeaders() so the proxy GET carries the same
+      // `Translate: f` / `Authorization` as the PROPFIND request. Lazily
+      // built only for files (directories have no download URL).
+      raw_url_headers: entry.isDir ? undefined : this.downloadHeaders(),
     }
   }
 

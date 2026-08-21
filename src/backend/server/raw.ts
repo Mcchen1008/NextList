@@ -130,6 +130,22 @@ rawRouter.get("/*", async (c) => {
                 upstreamRes = await fetch(fileItem.raw_url, { headers })
               }
 
+              // Upstream returned a non-2xx status: don't silently pass
+              // through an empty error body — read it and return a readable 502.
+              if (!upstreamRes.ok) {
+                const errBody = await upstreamRes.text().catch(() => "")
+                console.error(
+                  `[rawRouter] Upstream ${upstreamRes.status} for '${reqPath}': ${errBody.slice(0, 500)}`,
+                )
+                // Keep CORS headers so cross-origin clients can read the error
+                c.header("Access-Control-Allow-Origin", "*")
+                return c.text(
+                  `Upstream error: ${upstreamRes.status} ${upstreamRes.statusText}` +
+                    (errBody ? ` — ${errBody.slice(0, 200)}` : ""),
+                  502,
+                )
+              }
+
               // CORS headers
               c.header("Access-Control-Allow-Origin", "*")
               c.header("Access-Control-Allow-Methods", "GET, OPTIONS, HEAD")
