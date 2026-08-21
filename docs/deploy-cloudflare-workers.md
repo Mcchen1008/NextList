@@ -1,6 +1,6 @@
 # Cloudflare Workers 部署指南
 
-OpenListNext 基于 [Hono](https://hono.dev/) 框架构建后端 API，天然支持运行在 Cloudflare Workers 等边缘 Serverless 平台上。本文将指引你如何将 OpenListNext 部署到 Cloudflare Workers。
+NextList 基于 [Hono](https://hono.dev/) 框架构建后端 API，天然支持运行在 Cloudflare Workers 等边缘 Serverless 平台上。本文将指引你如何将 NextList 部署到 Cloudflare Workers。
 
 ---
 
@@ -37,10 +37,10 @@ OpenListNext 基于 [Hono](https://hono.dev/) 框架构建后端 API，天然支
 
 ## 配置文件说明
 
-项目根目录下的 [wrangler.toml](file:///c:/Users/aaajn/Documents/GitHub/openlistnext/wrangler.toml) 是 Cloudflare Workers 的核心配置文件：
+项目根目录下的 [wrangler.toml](file:///c:/Users/aaajn/Documents/GitHub/nextlist/wrangler.toml) 是 Cloudflare Workers 的核心配置文件：
 
 ```toml
-name = "openlistnext"
+name = "nextlist"
 main = "src/backend/worker.ts"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
@@ -49,11 +49,11 @@ compatibility_flags = ["nodejs_compat"]
 ENVIRONMENT = "production"
 
 [[kv_namespaces]]
-binding = "OPENLISTNEXT_KV"
-id = "OPENLISTNEXT_KV_ID"
+binding = "NEXTLIST_KV"
+id = "NEXTLIST_KV_ID"
 ```
 
-- **`main`**: 指定 Worker 入口文件，OpenListNext 导出 Worker 标准 `fetch` 接口的入口为 [src/backend/worker.ts](file:///c:/Users/aaajn/Documents/GitHub/openlistnext/src/backend/worker.ts)。
+- **`main`**: 指定 Worker 入口文件，NextList 导出 Worker 标准 `fetch` 接口的入口为 [src/backend/worker.ts](file:///c:/Users/aaajn/Documents/GitHub/nextlist/src/backend/worker.ts)。
 - **`compatibility_flags = ["nodejs_compat"]`**: 开启 Node.js 兼容层（必需）。
 - **`[[kv_namespaces]]`**: 用于数据库与配置在边缘侧的持久化存储。
 
@@ -67,27 +67,27 @@ assets = { directory = "./dist" }
 
 ## 创建与绑定 Cloudflare KV
 
-OpenListNext 在 Serverless 环境中使用 Cloudflare KV 来存储配置数据和数据库记录（替代本地 `public_data/db.json` 文件）。
+NextList 在 Serverless 环境中使用 Cloudflare KV 来存储配置数据和数据库记录（替代本地 `public_data/db.json` 文件）。
 
 1. **创建生产环境 KV 命名空间**：
-   运行以下命令创建用于 OpenListNext 的 KV 空间：
+   运行以下命令创建用于 NextList 的 KV 空间：
 
    ```bash
-   npx wrangler kv:namespace create OPENLISTNEXT_KV
+   npx wrangler kv:namespace create NEXTLIST_KV
    ```
 
    命令行将输出类似以下的信息：
 
    ```text
-   🌀 Creating namespace with title "openlistnext-OPENLISTNEXT_KV"
-   ✨ Success! Created namespace openlistnext-OPENLISTNEXT_KV with ID "a1b2c3d4e5f67890abcdef1234567890"
+   🌀 Creating namespace with title "nextlist-NEXTLIST_KV"
+   ✨ Success! Created namespace nextlist-NEXTLIST_KV with ID "a1b2c3d4e5f67890abcdef1234567890"
    ```
 
 2. **更新 `wrangler.toml`**：
-   将获取到的 `ID` 填入 [wrangler.toml](file:///c:/Users/aaajn/Documents/GitHub/openlistnext/wrangler.toml) 文件中：
+   将获取到的 `ID` 填入 [wrangler.toml](file:///c:/Users/aaajn/Documents/GitHub/nextlist/wrangler.toml) 文件中：
    ```toml
    [[kv_namespaces]]
-   binding = "OPENLISTNEXT_KV"
+   binding = "NEXTLIST_KV"
    id = "a1b2c3d4e5f67890abcdef1234567890" # 替换为你自己的 KV Namespace ID
    ```
 
@@ -133,7 +133,7 @@ pnpm deploy:worker
 npx wrangler deploy
 ```
 
-部署完成后，命令行会返回分配的默认访问域名（如 `https://openlistnext.<your-subdomain>.workers.dev`）。
+部署完成后，命令行会返回分配的默认访问域名（如 `https://nextlist.<your-subdomain>.workers.dev`）。
 
 ---
 
@@ -152,7 +152,7 @@ npx wrangler secret put JWT_SECRET
 ### 2. 绑定自定义域名
 
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
-2. 导航至 **Workers & Pages** -> 选择你的 Worker (`openlistnext`)。
+2. 导航至 **Workers & Pages** -> 选择你的 Worker (`nextlist`)。
 3. 进入 **Settings** -> **Triggers** -> **Custom Domains**。
 4. 点击 **Add Custom Domain**，输入你在 Cloudflare 解析的自定义域名（例如 `openlist.example.com`）并确认。
 
@@ -165,7 +165,7 @@ npx wrangler secret put JWT_SECRET
 > Cloudflare Workers 运行在无状态边缘计算节点上，因此：
 >
 > 1. 本地硬盘存储驱动 (`Local` Driver) 在 Worker 部署环境下无法作为长期存储使用，推荐配置并使用对象存储（如 **AWS S3 / Cloudflare R2 / 阿里云 OSS / WebDAV** 等云存储驱动）。
-> 2. 系统配置及用户状态会自动持久化到绑定的 `OPENLISTNEXT_KV` 数据库中。
+> 2. 系统配置及用户状态会自动持久化到绑定的 `NEXTLIST_KV` 数据库中。
 
 > [!TIP]
 > **资源配额**：

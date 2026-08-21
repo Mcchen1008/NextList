@@ -2,7 +2,7 @@
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
-  "name": "OpenListNext",
+  "name": "NextList",
   "icons": [
     {
       "src": "/logo.png",

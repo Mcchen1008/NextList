@@ -1,5 +1,5 @@
 /**
- * Crypto utilities for OpenListNext.
+ * Crypto utilities for NextList.
  * Uses Web Crypto API (crypto.subtle + crypto.getRandomValues) —
  * compatible with Cloudflare Workers and Node.js 18+.
  * All functions are async.

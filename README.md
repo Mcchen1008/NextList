@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="/logo.png" width="128" alt="OpenListNext Logo" />
+<img src="/logo.png" width="128" alt="NextList Logo" />
 
-# OpenListNext
+# NextList
 
 **一个现代化的全栈文件列表 / 网盘管理系统**
 
-OpenListNext 是 [OpenList](https://github.com/OpenListTeam/OpenList) 的定制全栈分支，用轻量级 **Node.js (Hono + TypeScript)** 后端替代了原版 Go 后端，部署更轻量、启动更快、无需编译 Go 二进制。
+NextList 是 [OpenList](https://github.com/OpenListTeam/OpenList) 的定制全栈分支，用轻量级 **Node.js (Hono + TypeScript)** 后端替代了原版 Go 后端，部署更轻量、启动更快、无需编译 Go 二进制。
 
 [技术架构](#-技术架构) · [快速开始](#-快速开始) · [部署方法](#-部署方法) · [原版项目](#-原版项目) · [许可证](#-许可证)
 
@@ -141,7 +141,7 @@ npm run deploy:worker
 npm run dev:worker   # wrangler dev
 ```
 
-`npm run deploy` 会自动完成：检测 `OPENLISTNEXT_KV` namespace（不存在则自动创建）→ 构建前端 → `wrangler deploy`。`wrangler.toml` 只声明绑定、**不存储 KV id**，由 wrangler 4.x 的 Automatic provisioning 在部署时自动创建/关联同名 namespace——全程无需手动填写 KV id。
+`npm run deploy` 会自动完成：检测 `NEXTLIST_KV` namespace（不存在则自动创建）→ 构建前端 → `wrangler deploy`。`wrangler.toml` 只声明绑定、**不存储 KV id**，由 wrangler 4.x 的 Automatic provisioning 在部署时自动创建/关联同名 namespace——全程无需手动填写 KV id。
 
 部署完成后静态资源由 Workers 的 `ASSETS` binding 托管，API 由 Hono 后端处理，配置数据持久化在 KV 中。
 
@@ -160,7 +160,7 @@ npm run build
 
 ## 🔗 原版项目
 
-OpenListNext 是以下项目的分支 / 衍生实现：
+NextList 是以下项目的分支 / 衍生实现：
 
 | 项目                  | 说明                                    | 链接                                                                         |
 | --------------------- | --------------------------------------- | ---------------------------------------------------------------------------- |
@@ -179,6 +179,6 @@ OpenListNext 是以下项目的分支 / 衍生实现：
 
 <div align="center">
 
-**Powered by OpenListNext** · 由 [OpenList 社区](https://github.com/OpenListTeam/OpenList) 驱动
+**Powered by NextList** · 由 [OpenList 社区](https://github.com/OpenListTeam/OpenList) 驱动
 
 </div>

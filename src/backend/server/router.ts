@@ -51,7 +51,7 @@ export function setupRouter(app: Hono) {
   app.get("/health", (c) =>
     c.json({
       ok: true,
-      name: "OpenListNext",
+      name: "NextList",
       version: "v4.2.3",
       environment: (c.env as any)?.ENVIRONMENT || "development",
     }),

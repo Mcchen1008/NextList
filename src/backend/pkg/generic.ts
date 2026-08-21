@@ -1,5 +1,5 @@
 /**
- * Generic utility functions for OpenListNext backend.
+ * Generic utility functions for NextList backend.
  */
 
 // Simple range function like Go's range

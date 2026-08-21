@@ -6,7 +6,7 @@ export enum ErrorCode {
   NotFound = 404,
   InternalError = 500,
 
-  // Custom AList/OpenListNext codes
+  // Custom AList/NextList codes
   InvalidConfig = 1001,
   InvalidStorage = 1002,
   StorageNotReady = 1003,
@@ -15,35 +15,35 @@ export enum ErrorCode {
   TaskNotFound = 1006,
 }
 
-export class OpenListNextNextError extends Error {
+export class NextListNextError extends Error {
   constructor(
     public code: ErrorCode,
     public message: string,
     public originalError?: any,
   ) {
     super(message)
-    this.name = "OpenListNextNextError"
+    this.name = "NextListNextError"
   }
 }
 
 export const Errs = {
-  PathNotFound: new OpenListNextNextError(
+  PathNotFound: new NextListNextError(
     ErrorCode.PathNotFound,
     "Path not found",
   ),
-  NotReady: new OpenListNextNextError(
+  NotReady: new NextListNextError(
     ErrorCode.StorageNotReady,
     "Storage not ready",
   ),
-  InvalidConfig: new OpenListNextNextError(
+  InvalidConfig: new NextListNextError(
     ErrorCode.InvalidConfig,
     "Invalid configuration",
   ),
-  Unauthorized: new OpenListNextNextError(
+  Unauthorized: new NextListNextError(
     ErrorCode.Unauthorized,
     "Unauthorized access",
   ),
-  Forbidden: new OpenListNextNextError(
+  Forbidden: new NextListNextError(
     ErrorCode.Forbidden,
     "Permission denied",
   ),

@@ -1,4 +1,4 @@
-name = "openlistnextpro"
+name = "nextlistpro"
 main = "src/backend/worker.ts"
 compatibility_date = "2026-08-04"
 compatibility_flags = ["nodejs_compat"]
@@ -17,7 +17,7 @@ ADMIN_PASSWORD = "admin"
 VITE_API_URL = "/api"
 
 [[kv_namespaces]]
-binding = "OPENLISTNEXT_KV"
+binding = "NEXTLIST_KV"
 
 
 

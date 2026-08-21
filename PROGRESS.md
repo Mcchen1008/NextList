@@ -1,4 +1,4 @@
-# OpenListNext Refactoring Progress
+# NextList Refactoring Progress
 
 ## Core Features (核心功能)
 
@@ -55,7 +55,7 @@
 ## Cloudflare Workers 兼容性
 
 - [x] 无 Node.js 模块依赖（纯 fetch / Web Crypto / ReadableStream）
-- [x] KV 持久化（OPENLISTNEXT_KV binding，wrangler.toml 已配置）
+- [x] KV 持久化（NEXTLIST_KV binding，wrangler.toml 已配置）
 - [x] 动态 base 移除（静态资源 /assets/\* 直接由 ASSETS binding 提供）
 - [x] 回归测试：scripts/test-workers-env.mts (11 项)
 - [x] 驱动注册：Local（守卫）/ Quark / BaiduNetdisk / 123Pan / Onedrive / AliyundriveOpen / GoogleDrive
@@ -72,7 +72,7 @@
 - [x] 目录树 API (/api/fs/dirs)
 - [x] 123Pan 驱动 (types/util/driver + 注册 + 配置表单)
 - [x] 所有网盘驱动统一 order_by/order_direction 排列设置（共享 sortFileItems）
-- [x] 品牌统一 OpenList → OpenListNext（站点标题/图标/标识符/KV 名称）
+- [x] 品牌统一 OpenList → NextList（站点标题/图标/标识符/KV 名称）
 - [x] 移除 S3 全部功能（驱动/路由/设置/前端菜单）
 - [x] 中英文语言 JSON 完善（15 个文件 key 完全一致 + 代码引用 0 缺失）
 - [x] 生产构建修复（移除 vite-plugin-dynamic-base，资源路径恢复正常）

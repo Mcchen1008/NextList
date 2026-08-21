@@ -12,7 +12,7 @@ export const defaultDb = {
     },
     {
       key: "site_title",
-      value: "OpenListNext",
+      value: "NextList",
       type: "string",
       help: "Site Title",
       group: 1,
@@ -95,7 +95,7 @@ export const defaultDb = {
     },
     {
       key: "home_icon",
-      value: "openlistnext",
+      value: "nextlist",
       type: "string",
       help: "Home Icon Name",
       group: 2,
@@ -683,8 +683,8 @@ export function getKvBinding(envCtx?: any): {
   const g = typeof globalThis !== "undefined" ? (globalThis as any) : {}
 
   const candidates = [
-    { key: "OPENLISTNEXT_KV", name: "OPENLISTNEXT_KV" },
-    { key: "OPENLISTNEXT_KV_ID", name: "OPENLISTNEXT_KV_ID" },
+    { key: "NEXTLIST_KV", name: "NEXTLIST_KV" },
+    { key: "NEXTLIST_KV_ID", name: "NEXTLIST_KV_ID" },
     { key: "KV", name: "KV" },
     { key: "CF_KV", name: "CF_KV" },
     { key: "DATABASE_KV", name: "DATABASE_KV" },
@@ -730,7 +730,7 @@ export function getKvBinding(envCtx?: any): {
 
 async function readFromKv(
   kvInfo: ReturnType<typeof getKvBinding>,
-  key = "openlistnext_config",
+  key = "nextlist_config",
 ): Promise<any | null> {
   const { binding, mode } = kvInfo
   if (mode === "none" || !binding) return null
@@ -805,11 +805,11 @@ const LEGACY_SETTING_MIGRATIONS: Record<string, { from: any[]; to: string }> = {
   },
   site_title: {
     from: ["OpenList"],
-    to: "OpenListNext",
+    to: "NextList",
   },
   home_icon: {
     from: ["openlist", "oplist"],
-    to: "openlistnext",
+    to: "nextlist",
   },
 }
 
@@ -861,7 +861,7 @@ export const getDb = async (envCtx?: any) => {
   const kvInfo = getKvBinding(envCtx)
   if (kvInfo.mode !== "none") {
     try {
-      const kvConfig = await readFromKv(kvInfo, "openlistnext_config")
+      const kvConfig = await readFromKv(kvInfo, "nextlist_config")
       if (kvConfig) {
         memoryDb = kvConfig
         ensureDefaultSettings(memoryDb)
@@ -914,7 +914,7 @@ export const saveDb = async (data: any, envCtx?: any) => {
   // Save to KV Namespace
   const kvInfo = getKvBinding(envCtx)
   if (kvInfo.mode !== "none") {
-    const success = await saveToKv(kvInfo, "openlistnext_config", data).catch(
+    const success = await saveToKv(kvInfo, "nextlist_config", data).catch(
       (err) => {
         console.error("[DB] Failed to save to KV:", err)
         return false
@@ -940,7 +940,7 @@ export async function getKvStatus(envCtx?: any) {
 
   if (isConfigured) {
     try {
-      const testVal = await readFromKv(kvInfo, "openlistnext_config")
+      const testVal = await readFromKv(kvInfo, "nextlist_config")
       connected = true
       return {
         configured: true,

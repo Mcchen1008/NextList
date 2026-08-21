@@ -2,7 +2,7 @@ import { Context } from "hono"
 import { verify } from "hono/jwt"
 import { checkAdminAuth } from "../pkg/utils"
 
-export const JWT_SECRET = "super-secret-openlistnext-key"
+export const JWT_SECRET = "super-secret-nextlist-key"
 
 export async function adminAuthMiddleware(
   c: Context,
