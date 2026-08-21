@@ -25,7 +25,6 @@ export const HttpDirectUpload: Upload = async (
   setUpload: SetUpload,
   _asTask: boolean,
   overwrite: boolean,
-  _rapid: boolean,
 ) => {
   const path = pathDir(uploadPath)
 

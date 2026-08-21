@@ -2,14 +2,12 @@ import { password } from "~/store"
 import { EmptyResp } from "~/types"
 import { r } from "~/utils"
 import { SetUpload, Upload } from "./types"
-import { calculateHash } from "./util"
 export const FormUpload: Upload = async (
   uploadPath: string,
   file: File,
   setUpload: SetUpload,
   asTask = false,
   overwrite = false,
-  rapid = false,
 ): Promise<undefined> => {
   let oldTimestamp = new Date().valueOf()
   let oldLoaded = 0
@@ -22,15 +20,6 @@ export const FormUpload: Upload = async (
     "Last-Modified": file.lastModified,
     Password: password(),
     Overwrite: overwrite.toString(),
-  }
-  if (rapid) {
-    setUpload("status", "hashing")
-    const { md5, sha1, sha256 } = await calculateHash(file, (p) => {
-      setUpload("progress", p | 0)
-    })
-    headers["X-File-Md5"] = md5
-    headers["X-File-Sha1"] = sha1
-    headers["X-File-Sha256"] = sha256
   }
   setUpload("status", "uploading")
   const resp: EmptyResp = await r.put("/fs/form", form, {

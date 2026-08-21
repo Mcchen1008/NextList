@@ -1,6 +1,5 @@
 type Status =
   | "pending"
-  | "hashing"
   | "uploading"
   | "backending"
   | "success"
@@ -16,7 +15,6 @@ export interface UploadFileProps {
 }
 export const StatusBadge = {
   pending: "neutral",
-  hashing: "warning",
   uploading: "info",
   backending: "info",
   success: "success",
@@ -29,5 +27,4 @@ export type Upload = (
   setUpload: SetUpload,
   asTask: boolean,
   overwrite: boolean,
-  rapid: boolean,
 ) => Promise<Error | undefined>

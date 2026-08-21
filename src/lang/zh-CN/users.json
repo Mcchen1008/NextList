@@ -12,8 +12,6 @@
     "webdav_manage": "WebDAV 管理",
     "ftp_read": "FTP 读取",
     "ftp_manage": "FTP 管理",
-    "read_archives": "读取压缩包内容",
-    "decompress": "解压压缩包",
     "share": "创建/查看分享",
     "customize_share_id": "自定义分享 ID"
   },
@@ -46,10 +44,6 @@
   "sso_login": "单点登录",
   "connect_sso": "绑定单点登录平台",
   "disconnect_sso": "解绑单点登录平台",
-  "webauthn": "WebAuthn 生物特征校验",
-  "add_webauthn": "添加 WebAuthn 凭据",
-  "add_webauthn_success": "WebAuthn 凭据添加成功！",
-  "webauthn_not_supported": "您的浏览器不支持 WebAuthn 或当前处于非安全源环境",
   "ssh_keys": {
     "heading": "SSH 公钥管理",
     "add_heading": "添加新 SSH 公钥",

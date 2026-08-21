@@ -126,7 +126,6 @@ const Upload = () => {
           },
           uploadConfig.asTask,
           uploadConfig.overwrite,
-          uploadConfig.rapid,
         )
         .catch((err) => err)
       if (!err) {
@@ -317,14 +316,6 @@ const Upload = () => {
                 }}
               >
                 {t("home.conflict_policy.overwrite_existing")}
-              </Checkbox>
-              <Checkbox
-                checked={uploadConfig.rapid}
-                onChange={() => {
-                  setUploadConfig({ rapid: !uploadConfig.rapid })
-                }}
-              >
-                {t("home.upload.try_rapid")}
               </Checkbox>
             </Stack>
           </Show>

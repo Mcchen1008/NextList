@@ -12,8 +12,6 @@
     "webdav_manage": "WebDAV manage",
     "ftp_read": "FTP read",
     "ftp_manage": "FTP manage",
-    "read_archives": "Read archives",
-    "decompress": "Decompress",
     "share": "Share",
     "customize_share_id": "Customize share ID"
   },
@@ -46,10 +44,6 @@
   "sso_login": "Single Sign-On Login",
   "connect_sso": "Connect to Single Sign-On Platform",
   "disconnect_sso": "Disconnect from Single Sign-On Platform",
-  "webauthn": "WebAuthn",
-  "add_webauthn": "Add a WebAuthn credential",
-  "add_webauthn_success": "WebAuthn credential successfully added!",
-  "webauthn_not_supported": "WebAuthn is not supported in your browser or you are in an unsafe origin",
   "ssh_keys": {
     "heading": "SSH keys",
     "add_heading": "Add new SSH key",

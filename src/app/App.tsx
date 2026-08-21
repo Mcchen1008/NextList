@@ -13,9 +13,8 @@ import { Portal } from "solid-js/web"
 import { Error, FullScreenLoading } from "~/components"
 import { useLoading, useRouter, useT } from "~/hooks"
 import { setSettings } from "~/store"
-import { setArchiveExtensions } from "~/store/archive"
 import { Resp } from "~/types"
-import { base_path, bus, handleRespWithoutAuthAndNotify, r } from "~/utils"
+import { base_path, bus, r } from "~/utils"
 import { MustUser, UserOrGuest } from "./MustUser"
 import "./index.css"
 import { globalStyles } from "./theme"
@@ -68,19 +67,6 @@ const App: Component = () => {
             version: "v4.2.3",
           }
           setSettings(defaultSettings)
-        }
-      })(),
-      (async () => {
-        const resp = (await r.get("/public/archive_extensions")) as Resp<
-          string[]
-        >
-        if (resp && resp.code === 200) {
-          setArchiveExtensions(resp.data)
-        } else {
-          console.warn(
-            "Using client-side fallback archive extensions due to API failure",
-          )
-          setArchiveExtensions(["zip", "tar", "gz", "rar", "7z"])
         }
       })(),
     ]),

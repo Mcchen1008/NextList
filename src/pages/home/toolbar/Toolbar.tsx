@@ -6,7 +6,6 @@ import { Delete } from "./Delete"
 import { Rename } from "./Rename"
 import { NewFile } from "./NewFile"
 import { Mkdir } from "./Mkdir"
-import { RecursiveMove } from "./RecursiveMove"
 import { RemoveEmptyDirectory } from "./RemoveEmptyDirectory"
 import { BatchRename } from "./BatchRename"
 import { PackageDownloadModal } from "./Download"
@@ -14,7 +13,6 @@ import { lazy } from "solid-js"
 import { ModalWrapper } from "./ModalWrapper"
 import { LocalSettings } from "./LocalSettings"
 import { BackTop } from "./BackTop"
-import { Decompress } from "./Decompress"
 import { Share } from "./Share"
 
 const Upload = lazy(() => import("../uploads/Upload"))
@@ -26,11 +24,9 @@ export const Modal = () => {
       <Move />
       <Rename />
       <Delete />
-      <Decompress />
       <NewFile />
       <Mkdir />
       <Share />
-      <RecursiveMove />
       <RemoveEmptyDirectory />
       <BatchRename />
       <PackageDownloadModal />

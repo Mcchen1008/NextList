@@ -9,7 +9,6 @@ import {
   State,
   userCan,
 } from "~/store"
-import { isArchive } from "~/store/archive"
 import { CopyLink } from "./CopyLink"
 import { CenterIcon } from "./Icon"
 import { bus } from "~/utils"
@@ -28,10 +27,6 @@ export const Center = () => {
 
   const selected = createMemo(() => selectedObjs())
   const count = createMemo(() => selected().length)
-  const canDecompress = createMemo(
-    () =>
-      count() > 0 && selected().every((o) => !o.is_dir && isArchive(o.name)),
-  )
 
   return (
     <Presence exitBeforeEnter>
@@ -97,14 +92,6 @@ export const Center = () => {
                     name="delete"
                     onClick={() => {
                       bus.emit("tool", "delete")
-                    }}
-                  />
-                </Show>
-                <Show when={canDecompress() && userCan("decompress")}>
-                  <CenterIcon
-                    name="decompress"
-                    onClick={() => {
-                      bus.emit("tool", "decompress")
                     }}
                   />
                 </Show>

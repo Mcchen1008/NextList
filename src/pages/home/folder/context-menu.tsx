@@ -18,7 +18,6 @@ import {
 import { players } from "../previews/video_box"
 import { getPreviews } from "../previews"
 import { BsPlayCircleFill } from "solid-icons/bs"
-import { isArchive } from "~/store/archive"
 
 const ItemContent = (props: { name: string }) => {
   const t = useT()
@@ -94,22 +93,6 @@ export const ContextMenu = () => {
         }}
       >
         <ItemContent name="share" />
-      </Item>
-      <Item
-        hidden={() => {
-          return (
-            isShare() ||
-            !userCan("decompress") ||
-            !objStore.write ||
-            selectedObjs().some((o) => o.is_dir) ||
-            selectedObjs().some((o) => !isArchive(o.name))
-          )
-        }}
-        onClick={() => {
-          bus.emit("tool", "decompress")
-        }}
-      >
-        <ItemContent name="decompress" />
       </Item>
       <Show when={oneChecked()}>
         <Item

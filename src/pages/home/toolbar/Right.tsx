@@ -90,15 +90,6 @@ export const Right = () => {
                 />
                 <Show when={userCan("move")}>
                   <RightIcon
-                    as={operations.recursive_move.icon}
-                    tips="recursive_move"
-                    onClick={() => {
-                      bus.emit("tool", "recursiveMove")
-                    }}
-                  />
-                </Show>
-                <Show when={userCan("delete")}>
-                  <RightIcon
                     as={operations.remove_empty_directory.icon}
                     tips="remove_empty_directory"
                     onClick={() => {

@@ -10,7 +10,6 @@ import {
   BsFileEarmarkMinusFill,
   BsApple,
   BsWindows,
-  BsFileEarmarkZipFill,
   BsMarkdownFill,
 } from "solid-icons/bs"
 import {
@@ -28,7 +27,6 @@ import {
   VscodeIconsFileTypePhotoshop2,
 } from "~/components"
 import { SiAsciinema } from "solid-icons/si"
-import { isArchive } from "~/store/archive"
 
 const iconMap = {
   "dmg,ipa,plist,tipa": BsApple,
@@ -55,9 +53,6 @@ export const getIconByTypeAndName = (type: number, name: string) => {
       if (extensions.split(",").includes(ext(name).toLowerCase())) {
         return icon
       }
-    }
-    if (isArchive(name)) {
-      return BsFileEarmarkZipFill
     }
   }
   switch (type) {

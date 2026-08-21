@@ -30,8 +30,6 @@ export const UserPermissions = [
   "webdav_manage",
   "ftp_read",
   "ftp_manage",
-  "read_archives",
-  "decompress",
   "share",
   "customize_share_id",
 ] as const
