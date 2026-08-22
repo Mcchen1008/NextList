@@ -1,4 +1,4 @@
-name = "nextlistpro"
+name = "nextlist"
 main = "src/backend/worker.ts"
 compatibility_date = "2026-08-04"
 compatibility_flags = ["nodejs_compat"]
