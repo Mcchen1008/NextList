@@ -607,7 +607,9 @@ export const defaultDb = {
       value: "",
       type: "string",
       help: "115 / PikPak / Thunder Token",
-      group: 14,
+      // group 5 = Group.ARIA2（前端「其他设置」页按 ARIA2/SINGLE 分组查询该 key，
+      // 见 src/types/setting.ts 与 pages/manage/settings/Other.tsx）
+      group: 5,
       flag: 0,
     },
 

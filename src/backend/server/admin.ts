@@ -1,6 +1,8 @@
 import { Hono } from "hono"
 import { verify } from "hono/jwt"
 import { getDb, saveDb, defaultDb, getKvStatus } from "../internal/model/db"
+import { getDriver } from "../internal/op/storage"
+import { randomString } from "../pkg/crypto"
 import { JWT_SECRET } from "./middlewares"
 
 export const adminRouter = new Hono()
@@ -139,6 +141,45 @@ adminRouter.post("/storage/disable", async (c) => {
     await saveDb(db, c.env)
   }
   return c.json({ code: 200, message: "success", data: null })
+})
+
+// 预热/加载所有启用的存储驱动（逐个容错，坏配置不影响其他存储）。
+// Serverless 下无常驻进程，这里即「装配」：初始化驱动并填充缓存，
+// 之后的请求无需再走首次初始化（token 刷新等副作用在此时完成）。
+adminRouter.post("/storage/load_all", async (c) => {
+  const db = await getDb(c.env)
+  const results: any[] = []
+  let loaded = 0
+  let failed = 0
+
+  for (const storage of db.storages || []) {
+    if (storage.disabled) continue
+    try {
+      await getDriver(storage.driver, storage)
+      loaded++
+      results.push({
+        id: storage.id,
+        mount_path: storage.mount_path,
+        driver: storage.driver,
+        status: "ok",
+      })
+    } catch (e: any) {
+      failed++
+      results.push({
+        id: storage.id,
+        mount_path: storage.mount_path,
+        driver: storage.driver,
+        status: "failed",
+        error: e?.message || String(e),
+      })
+    }
+  }
+
+  return c.json({
+    code: 200,
+    message: "success",
+    data: { loaded, failed, results },
+  })
 })
 
 adminRouter.get("/driver/names", (c) => {
@@ -1304,6 +1345,35 @@ adminRouter.post("/setting/delete", async (c) => {
   db.settings = (db.settings || []).filter((s: any) => s.key !== key)
   await saveDb(db, c.env)
   return c.json({ code: 200, message: "success", data: null })
+})
+
+// 重新生成访问 Token（用于 API 的 Token 认证，见 pkg/utils.ts checkAdminAuth）。
+// 返回新 token 字符串；同时把设置项归入前端「其他设置」页查询的分组
+// （Group.ARIA2=5 / Group.SINGLE=0，见 src/types/setting.ts），保证刷新后仍能显示。
+adminRouter.post("/setting/reset_token", async (c) => {
+  const db = await getDb(c.env)
+  const token = randomString(32)
+
+  const idx = db.settings.findIndex((s: any) => s.key === "token")
+  if (idx !== -1) {
+    db.settings[idx].value = token
+    // 旧库中 token 为 group 14（后端旧定义），前端按 group 5/0 查询，需迁移
+    if (db.settings[idx].group !== 5 && db.settings[idx].group !== 0) {
+      db.settings[idx].group = 5
+    }
+  } else {
+    db.settings.push({
+      key: "token",
+      value: token,
+      type: "string",
+      help: "115 / PikPak / Thunder Token",
+      group: 5,
+      flag: 0,
+    })
+  }
+
+  await saveDb(db, c.env)
+  return c.json({ code: 200, message: "success", data: token })
 })
 
 adminRouter.get("/meta/list", async (c) => {
