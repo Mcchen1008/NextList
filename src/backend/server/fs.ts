@@ -8,6 +8,8 @@ import {
   moveItems,
   copyItems,
   putItem,
+  batchRenameItems,
+  removeEmptyDirectories,
 } from "../internal/op/storage"
 import { resolveShare } from "../internal/op/share"
 
@@ -356,6 +358,83 @@ fsRouter.put("/put", async (c) => {
     const buffer = await c.req.arrayBuffer()
     await putItem(reqPath, Buffer.from(buffer))
     return c.json({ code: 200, message: "success", data: null })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message, data: null })
+  }
+})
+
+// PUT multipart form upload — frontend uploads/form.ts
+fsRouter.put("/form", async (c) => {
+  const reqPath = decodeURIComponent(c.req.header("File-Path") || "")
+  try {
+    const body = await c.req.parseBody()
+    const file = body["file"] as File | undefined
+    if (!file || typeof file.arrayBuffer !== "function") {
+      return c.json(
+        {
+          code: 400,
+          message: "Missing 'file' field in multipart form",
+          data: null,
+        },
+        400,
+      )
+    }
+    const buffer = await file.arrayBuffer()
+    await putItem(reqPath, Buffer.from(buffer))
+    return c.json({ code: 200, message: "success", data: null })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message, data: null })
+  }
+})
+
+// Batch rename — frontend fsBatchRename
+fsRouter.post("/batch_rename", async (c) => {
+  const { src_dir, rename_objects } = await c.req.json().catch(() => ({}))
+  if (
+    !src_dir ||
+    !Array.isArray(rename_objects) ||
+    rename_objects.length === 0
+  ) {
+    return c.json(
+      {
+        code: 400,
+        message: "src_dir and rename_objects are required",
+        data: null,
+      },
+      400,
+    )
+  }
+  try {
+    const { renamed, errors } = await batchRenameItems(src_dir, rename_objects)
+    if (errors.length > 0) {
+      return c.json({
+        code: 400,
+        message: `${errors.length} item(s) failed: ${errors.join("; ")}`,
+        data: { renamed, errors },
+      })
+    }
+    return c.json({
+      code: 200,
+      message: "success",
+      data: { renamed, errors: [] },
+    })
+  } catch (e: any) {
+    return c.json({ code: 500, message: e.message, data: null })
+  }
+})
+
+// Remove empty directories under src_dir — frontend fsRemoveEmptyDirectory
+fsRouter.post("/remove_empty_directory", async (c) => {
+  const { src_dir } = await c.req.json().catch(() => ({}))
+  if (!src_dir) {
+    return c.json(
+      { code: 400, message: "src_dir is required", data: null },
+      400,
+    )
+  }
+  try {
+    const removed = await removeEmptyDirectories(src_dir)
+    return c.json({ code: 200, message: "success", data: { removed } })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message, data: null })
   }

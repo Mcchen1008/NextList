@@ -513,3 +513,124 @@ export async function putItem(
   const driver = await getDriver(resolved.storage!.driver, resolved.storage)
   await driver.put(virtualPath, resolved.physical!, content)
 }
+
+function joinVirtualPath(dir: string, name: string): string {
+  const base =
+    "/" +
+    String(dir || "/")
+      .split("/")
+      .filter(Boolean)
+      .join("/")
+  const cleanName = String(name || "")
+    .split("/")
+    .filter(Boolean)
+    .join("/")
+  if (!cleanName) return base || "/"
+  return (base === "/" ? "/" : base + "/") + cleanName
+}
+
+/**
+ * Batch rename objects under src_dir.
+ * `renameObjects`: [{ src_name, new_name }] (frontend RenameObj shape).
+ * Each item is attempted independently; failures are collected and reported
+ * together so one bad item does not abort the whole batch.
+ */
+export async function batchRenameItems(
+  srcDir: string,
+  renameObjects: Array<{ src_name: string; new_name: string }>,
+): Promise<{ renamed: number; errors: string[] }> {
+  const objects = Array.isArray(renameObjects) ? renameObjects : []
+  const errors: string[] = []
+  let renamed = 0
+  for (const obj of objects) {
+    const srcName = obj?.src_name
+    const newName = obj?.new_name
+    if (!srcName || !newName) {
+      errors.push(`Invalid rename object: ${JSON.stringify(obj)}`)
+      continue
+    }
+    try {
+      await renameItem(joinVirtualPath(srcDir, srcName), newName)
+      renamed++
+    } catch (e: any) {
+      errors.push(`"${srcName}" -> "${newName}": ${e?.message || e}`)
+    }
+  }
+  return { renamed, errors }
+}
+
+/**
+ * Recursively remove empty directories under srcDir (bottom-up, so nested
+ * empty folders collapse fully). The requested srcDir itself is kept, and
+ * storage mount points are never removed. Bounded by MAX_VISITED / MAX_DEPTH
+ * to avoid runaway traversal on large trees.
+ */
+export async function removeEmptyDirectories(srcDir: string): Promise<number> {
+  const MAX_VISITED = 2000
+  const MAX_DEPTH = 50
+  const root =
+    "/" +
+      String(srcDir || "/")
+        .split("/")
+        .filter(Boolean)
+        .join("/") || "/"
+  let visited = 0
+  let removed = 0
+
+  async function isMountPoint(dir: string): Promise<boolean> {
+    try {
+      const db = await getDb()
+      const cleanDir =
+        "/" + String(dir).split("/").filter(Boolean).join("/") || "/"
+      return (db.storages || []).some((s: any) => {
+        if (s.disabled) return false
+        const mount =
+          "/" + (s.mount_path || "").split("/").filter(Boolean).join("/")
+        return mount === cleanDir
+      })
+    } catch {
+      return true // be conservative: treat as mount when db is unavailable
+    }
+  }
+
+  async function walk(dir: string, depth: number): Promise<void> {
+    if (visited >= MAX_VISITED || depth > MAX_DEPTH) return
+    visited++
+
+    let items: any[]
+    try {
+      const res = await listItems(dir)
+      items = res.content || []
+    } catch {
+      return // unlistable directory — treat as non-empty
+    }
+
+    // Recurse first (bottom-up)
+    for (const item of items) {
+      if (item.is_dir) {
+        await walk(joinVirtualPath(dir, item.name), depth + 1)
+      }
+    }
+
+    // Remove this directory only if it is a descendant of the requested root
+    if (dir === root) return
+    if (await isMountPoint(dir)) return
+
+    try {
+      const res = await listItems(dir)
+      if ((res.content || []).length === 0) {
+        const segments = dir.split("/").filter(Boolean)
+        const name = segments.pop() || ""
+        if (!name) return
+        const parent = "/" + segments.join("/") || "/"
+        await removeItems(parent, [name])
+        removed++
+      }
+    } catch {
+      // skip directories we cannot re-list
+    }
+  }
+
+  await walk(root, 0)
+  return removed
+}

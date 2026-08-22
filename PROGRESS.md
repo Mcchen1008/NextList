@@ -70,6 +70,10 @@
 - [x] 任务管理 API (/api/task/\*) — list/retry/cancel/delete/clear
 - [x] 元数据管理 API (/api/admin/meta/\*) — CRUD
 - [x] 目录树 API (/api/fs/dirs)
+- [x] 批量重命名 API (/api/fs/batch_rename) — 逐条容错，返回失败明细
+- [x] 删除空目录 API (/api/fs/remove_empty_directory) — 递归自底向上、保护挂载点、有遍历上限
+- [x] 表单上传 API (PUT /api/fs/form) — multipart，复用 putItem
+- [x] SSH 公钥管理 API (/api/me/sshkey/_ + /api/admin/user/sshkey/_) — 格式校验 + SHA256 指纹
 - [x] 123Pan 驱动 (types/util/driver + 注册 + 配置表单)
 - [x] 所有网盘驱动统一 order_by/order_direction 排列设置（共享 sortFileItems）
 - [x] 品牌统一 OpenList → NextList（站点标题/图标/标识符/KV 名称）

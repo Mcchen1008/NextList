@@ -3,6 +3,11 @@ import { getDb, saveDb } from "../internal/model/db"
 import { hashPassword } from "./auth"
 import { verify } from "hono/jwt"
 import { JWT_SECRET } from "./middlewares"
+import {
+  getUserSshKeys,
+  deleteUserSshKey,
+  serializeSshKey,
+} from "../internal/op/sshkey"
 
 export const userRouter = new Hono()
 
@@ -195,6 +200,49 @@ const deleteUserHandler = async (c: any) => {
 
 userRouter.post("/delete", deleteUserHandler)
 userRouter.post("/cancel", deleteUserHandler)
+
+// GET /api/admin/user/sshkey/list?uid=...
+userRouter.get("/sshkey/list", async (c) => {
+  const id = parseInt(c.req.query("uid") || "0", 10)
+  const db = await getDb(c.env)
+  const user = (db.users || []).find((u: any) => u.id === id)
+  if (!user) {
+    return c.json({ code: 404, message: "User not found", data: null }, 404)
+  }
+  const keys = getUserSshKeys(user).map(serializeSshKey)
+  return c.json({
+    code: 200,
+    message: "success",
+    data: { content: keys, total: keys.length },
+  })
+})
+
+// POST /api/admin/user/sshkey/delete?uid=...&id=...
+userRouter.post("/sshkey/delete", async (c) => {
+  const uid = parseInt(c.req.query("uid") || "0", 10)
+  const id = c.req.query("id")
+  if (!uid || !id) {
+    return c.json(
+      { code: 400, message: "Missing uid or id parameter", data: null },
+      400,
+    )
+  }
+  const db = await getDb(c.env)
+  const user = (db.users || []).find((u: any) => u.id === uid)
+  if (!user) {
+    return c.json({ code: 404, message: "User not found", data: null }, 404)
+  }
+  const removed = deleteUserSshKey(user, id)
+  if (!removed) {
+    return c.json({ code: 404, message: "SSH key not found", data: null }, 404)
+  }
+  await saveDb(db, c.env)
+  return c.json({
+    code: 200,
+    message: "success",
+    data: getUserSshKeys(user).map(serializeSshKey),
+  })
+})
 
 // POST /api/user/update_pwd
 export const updatePwdHandler = async (c: any) => {

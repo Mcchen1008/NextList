@@ -1,9 +1,53 @@
 import { Hono } from "hono"
 import { sign, verify } from "hono/jwt"
 import { getDb, saveDb } from "../internal/model/db"
+import {
+  getUserSshKeys,
+  addUserSshKey,
+  deleteUserSshKey,
+  serializeSshKey,
+} from "../internal/op/sshkey"
 import { JWT_SECRET } from "./middlewares"
 
 export const authRouter = new Hono()
+
+// Router mounted at /me by router.ts (handles /me/sshkey/*)
+type MeVariables = {
+  authUser: { db: any; user: any }
+}
+export const meRouter = new Hono<{ Variables: MeVariables }>()
+
+/** Resolve the authenticated user from the request, or return null. */
+async function authUserFromReq(c: any): Promise<{
+  db: any
+  user: any
+} | null> {
+  const authHeader = c.req.header("Authorization")
+  if (!authHeader) return null
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.substring(7)
+    : authHeader
+  try {
+    const payload = await verify(token, JWT_SECRET, "HS256")
+    const db = await getDb(c.env)
+    if (!db.users) db.users = []
+    const user = db.users.find(
+      (u: any) => u.id === payload.id || u.username === payload.username,
+    )
+    return user ? { db, user } : null
+  } catch {
+    return null
+  }
+}
+
+meRouter.use("*", async (c, next) => {
+  const auth = await authUserFromReq(c)
+  if (!auth) {
+    return c.json({ code: 401, message: "Unauthorized", data: null }, 401)
+  }
+  c.set("authUser", auth)
+  await next()
+})
 
 // Helper to hash password matching NextList/AList specification
 export async function hashPassword(plainPassword: string): Promise<string> {
@@ -275,3 +319,52 @@ export const logoutHandler = (c: any) => {
 
 authRouter.get("/logout", logoutHandler)
 authRouter.post("/logout", logoutHandler)
+
+// GET /api/me/sshkey/list
+meRouter.get("/sshkey/list", async (c) => {
+  const { user } = c.get("authUser")
+  const keys = getUserSshKeys(user).map(serializeSshKey)
+  return c.json({
+    code: 200,
+    message: "success",
+    data: { content: keys, total: keys.length },
+  })
+})
+
+// POST /api/me/sshkey/add  body: { title, key }
+meRouter.post("/sshkey/add", async (c) => {
+  const { db, user } = c.get("authUser")
+  const body = await c.req.json().catch(() => ({}))
+  const result = await addUserSshKey(user, body.title || "", body.key || "")
+  if (!result.ok) {
+    return c.json({ code: 400, message: result.error, data: null }, 400)
+  }
+  await saveDb(db, c.env)
+  return c.json({
+    code: 200,
+    message: "success",
+    data: serializeSshKey(result.key),
+  })
+})
+
+// POST /api/me/sshkey/delete?id=...
+meRouter.post("/sshkey/delete", async (c) => {
+  const { db, user } = c.get("authUser")
+  const id = c.req.query("id")
+  if (!id) {
+    return c.json(
+      { code: 400, message: "Missing id parameter", data: null },
+      400,
+    )
+  }
+  const removed = deleteUserSshKey(user, id)
+  if (!removed) {
+    return c.json({ code: 404, message: "SSH key not found", data: null }, 404)
+  }
+  await saveDb(db, c.env)
+  return c.json({
+    code: 200,
+    message: "success",
+    data: getUserSshKeys(user).map(serializeSshKey),
+  })
+})
