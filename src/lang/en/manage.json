@@ -22,6 +22,19 @@
     "ftp": "FTP",
     "traffic": "Traffic"
   },
+  "dashboard": {
+    "kv_connected_title": "KV Storage Sync: Connected & Healthy",
+    "kv_connected_desc": "Your configuration, account data, and storage driver settings are persisted in the {{platform}} database.",
+    "local_mode_title": "Local File / In-Memory Database Mode",
+    "local_mode_badge": "Local Mode",
+    "local_mode_desc": "Currently running in local mode (public_data/db.json).",
+    "local_mode_hint": "To enable Cloudflare Workers KV persistence, bind a KV namespace in the Cloudflare dashboard (e.g. binding variable NEXTLIST_KV) or configure REST API environment variables (CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID, CF_API_TOKEN).",
+    "storage_status_title": "Mounted Storage Drives Status",
+    "storage_total": "Total Storages",
+    "storage_active": "Active",
+    "storage_disabled": "Disabled",
+    "shortcuts": "Shortcuts"
+  },
   "title": "NextList Management",
   "not_admin": "You are not an admin user, please login with an admin account.",
   "logout_success": "Logout successful",

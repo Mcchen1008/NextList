@@ -22,6 +22,19 @@
     "ftp": "FTP 服务",
     "traffic": "流量统计"
   },
+  "dashboard": {
+    "kv_connected_title": "KV 存储同步：已连接且运行正常",
+    "kv_connected_desc": "您的系统配置、账号数据及存储驱动设置已持久化保存于 {{platform}} 数据库中。",
+    "local_mode_title": "本地文件 / 内存数据库模式",
+    "local_mode_badge": "本地运行模式",
+    "local_mode_desc": "当前系统运行于本地模式（public_data/db.json）。",
+    "local_mode_hint": "如需开启 Cloudflare Workers KV 空间持久化，请在 Cloudflare 仪表盘绑定 KV 命名空间（绑定变量名如：NEXTLIST_KV）或配置 REST API 环境变量（CF_ACCOUNT_ID、CF_KV_NAMESPACE_ID、CF_API_TOKEN）。",
+    "storage_status_title": "挂载存储网盘状态",
+    "storage_total": "总挂载数量",
+    "storage_active": "正常运行",
+    "storage_disabled": "已禁用",
+    "shortcuts": "快捷导航"
+  },
   "title": "NextList 管理后台",
   "not_admin": "您当前非管理员账号，请使用管理员账号登录后台。",
   "logout_success": "退出登录成功",
