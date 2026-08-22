@@ -76,19 +76,14 @@ export class WebdavDriver implements StorageDriver {
     return this.downloadHeaders()
   }
 
-  private async propfind(
-    url: string,
-    depth: "0" | "1",
-  ): Promise<Response> {
+  private async propfind(url: string, depth: "0" | "1"): Promise<Response> {
     const headers = this.baseHeaders()
     headers["Depth"] = depth
     const res = await fetch(url, { method: "PROPFIND", headers })
     if (res.status === 404) return res
     if (!res.ok) {
       // Allow 404 (handled by callers), but surface other failures.
-      throw new Error(
-        `WebDAV PROPFIND failed: ${res.status} ${res.statusText}`,
-      )
+      throw new Error(`WebDAV PROPFIND failed: ${res.status} ${res.statusText}`)
     }
     return res
   }
@@ -99,10 +94,7 @@ export class WebdavDriver implements StorageDriver {
     return isNaN(d.getTime()) ? new Date(0).toISOString() : d.toISOString()
   }
 
-  async list(
-    _virtualPath: string,
-    physicalPath: string,
-  ): Promise<FileItem[]> {
+  async list(_virtualPath: string, physicalPath: string): Promise<FileItem[]> {
     const url = this.buildUrl(physicalPath)
     const res = await this.propfind(url, "1")
     if (res.status === 404) return []
@@ -196,9 +188,7 @@ export class WebdavDriver implements StorageDriver {
       })
       // 204/200/207 are all acceptable; 404 means already gone.
       if (!res.ok && res.status !== 404) {
-        throw new Error(
-          `WebDAV DELETE failed: ${res.status} ${res.statusText}`,
-        )
+        throw new Error(`WebDAV DELETE failed: ${res.status} ${res.statusText}`)
       }
     }
   }
@@ -237,8 +227,7 @@ export class WebdavDriver implements StorageDriver {
     content: Buffer,
   ): Promise<void> {
     const url = this.buildUrl(physicalPath)
-    const body: Uint8Array =
-      content instanceof Uint8Array ? content : new Uint8Array(content)
+    const body = new Uint8Array(content)
     const res = await fetch(url, {
       method: "PUT",
       headers: this.baseHeaders(),

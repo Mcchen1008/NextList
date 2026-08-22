@@ -25,6 +25,10 @@
 - [x] 备份/恢复 (Backup / Restore) - _JSON export/import with encryption, skip-existing logic_
 - [x] 元数据管理 (Meta management) - _Full CRUD via /admin/meta/\*_
 - [x] 目录树 (Folder tree) - _Via /fs/dirs endpoint_
+- [x] 文件搜索 (File search) - _Via /fs/search traversal search (BFS, depth-10 / 500-dir / 5000-match caps, scope + pagination)_
+- [x] 驱动扩展操作 (Driver "other" ops) - _Via /fs/other dispatch: Aliyun Drive video_preview (live transcoding)_
+- [x] 两步验证 2FA (TOTP) - _RFC 6238 via Web Crypto: /auth/2fa/generate + /verify, login 402 → otp_code flow, admin /admin/user/cancel_2fa, /me otp flag_
+- [x] 回归测试：scripts/test-tier3.mts (17 项：搜索 scope/分页、other 分发、2FA 全流程)
 
 ## Storages (多种存储)
 

@@ -149,6 +149,25 @@ export class AliyundriveOpen implements StorageDriver {
     await this.client.putFile(parentId, name, content)
   }
 
+  /**
+   * Extended operations dispatched via POST /fs/other.
+   * Supported methods:
+   *   - "video_preview": return Aliyun live-transcoding preview info so the
+   *     frontend can play the original video with quality options.
+   */
+  async other(method: string, params: any): Promise<any> {
+    switch (method) {
+      case "video_preview": {
+        const fileId = await this.resolveFileId(
+          params.physicalPath || params.path,
+        )
+        return this.client.getVideoPreviewPlayInfo(fileId)
+      }
+      default:
+        throw new Error(`[AliyundriveOpen] unsupported other method: ${method}`)
+    }
+  }
+
   private async resolveFileId(physicalPath: string): Promise<string> {
     const clean = physicalPath.split("/").filter(Boolean).join("/")
     if (!clean) return this.client.getRootFolderId()

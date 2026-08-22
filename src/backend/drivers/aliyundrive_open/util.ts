@@ -285,6 +285,24 @@ export class AliyunOpenClient {
     return resp.url || resp.download_url || ""
   }
 
+  /**
+   * Aliyun Drive video transcoding preview info.
+   * Response shape: { video_preview_play_info: { category,
+   *   live_transcoding_task_list: [{ template_id, url, status, ... }], ... } }
+   */
+  public async getVideoPreviewPlayInfo(fileId: string): Promise<any> {
+    if (!this.driveId) {
+      await this.resolveDriveId()
+    }
+    return this.openApiRequest<any>("/openFile/getVideoPreviewPlayInfo", {
+      drive_id: this.driveId,
+      file_id: fileId,
+      category: "live_transcoding",
+      url_expire_sec: 14400,
+      get_subtitle_info: false,
+    })
+  }
+
   public async mkdir(parentFileId: string, name: string): Promise<void> {
     await this.openApiRequest("/openFile/create", {
       drive_id: this.driveId,

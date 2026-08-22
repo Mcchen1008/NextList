@@ -152,4 +152,9 @@ export interface StorageDriver {
     dstPhys: string,
   ): Promise<void>
   put(virtualPath: string, physicalPath: string, content: Buffer): Promise<void>
+  /**
+   * Optional driver-specific extended operations.
+   * Called by POST /fs/other with `{ method, path, physicalPath, ...params }`.
+   */
+  other?(method: string, params: any): Promise<any>
 }

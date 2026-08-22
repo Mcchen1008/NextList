@@ -23,6 +23,7 @@ userRouter.get("/list", async (c) => {
     disabled: !!u.disabled,
     sso_id: u.sso_id || "",
     allow_ldap: !!u.allow_ldap,
+    otp: !!u.otp_secret,
     pwd_update_at: u.pwd_update_at || "",
   }))
   return c.json({
@@ -65,6 +66,7 @@ userRouter.get("/get", async (c) => {
       disabled: !!user.disabled,
       sso_id: user.sso_id || "",
       allow_ldap: !!user.allow_ldap,
+      otp: !!user.otp_secret,
     },
   })
 })
@@ -242,6 +244,25 @@ userRouter.post("/sshkey/delete", async (c) => {
     message: "success",
     data: getUserSshKeys(user).map(serializeSshKey),
   })
+})
+
+// POST /api/admin/user/cancel_2fa?id=... — admin disables a user's 2FA
+userRouter.post("/cancel_2fa", async (c) => {
+  const id = parseInt(c.req.query("id") || "0", 10)
+  if (!id) {
+    return c.json(
+      { code: 400, message: "Missing id parameter", data: null },
+      400,
+    )
+  }
+  const db = await getDb(c.env)
+  const user = (db.users || []).find((u: any) => u.id === id)
+  if (!user) {
+    return c.json({ code: 404, message: "User not found", data: null }, 404)
+  }
+  delete user.otp_secret
+  await saveDb(db, c.env)
+  return c.json({ code: 200, message: "success", data: null })
 })
 
 // POST /api/user/update_pwd

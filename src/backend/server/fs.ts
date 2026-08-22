@@ -10,7 +10,9 @@ import {
   putItem,
   batchRenameItems,
   removeEmptyDirectories,
+  otherOperation,
 } from "../internal/op/storage"
+import { searchItems } from "../internal/op/search"
 import { resolveShare } from "../internal/op/share"
 
 export const fsRouter = new Hono()
@@ -437,6 +439,80 @@ fsRouter.post("/remove_empty_directory", async (c) => {
     return c.json({ code: 200, message: "success", data: { removed } })
   } catch (e: any) {
     return c.json({ code: 500, message: e.message, data: null })
+  }
+})
+
+// Traversal search — frontend folder/Search.tsx
+// body: { parent, keywords, password, scope (0=all,1=folder,2=file), page, per_page }
+fsRouter.post("/search", async (c) => {
+  const body = await c.req.json().catch(() => ({}))
+  const parent = body.parent || "/"
+  const keywords = body.keywords || ""
+  const scope = parseInt(body.scope, 10) || 0
+  const page = Math.max(1, parseInt(body.page, 10) || 1)
+  const per_page = Math.max(
+    1,
+    Math.min(200, parseInt(body.per_page, 10) || 100),
+  )
+  try {
+    let searchRoot = parent
+    // Search inside a share: resolve to its real path first
+    if (parent.startsWith("/@s")) {
+      const shareRes = await resolveShare(parent, body.password || "", c.env)
+      if (!shareRes.ok) {
+        return c.json({ code: 400, message: shareRes.error, data: null })
+      }
+      if (shareRes.virtualList) {
+        return c.json({
+          code: 200,
+          message: "success",
+          data: { content: [], total: 0 },
+        })
+      }
+      searchRoot = shareRes.realPath!
+    }
+    const matches = await searchItems(searchRoot, keywords, scope)
+    const total = matches.length
+    const start = (page - 1) * per_page
+    const content = matches.slice(start, start + per_page)
+    return c.json({ code: 200, message: "success", data: { content, total } })
+  } catch (err: any) {
+    return c.json({ code: 500, message: err.message, data: null })
+  }
+})
+
+// Driver-specific extended operations — frontend previews/aliyun_video.tsx
+// body: { path, password, method, ...params }
+fsRouter.post("/other", async (c) => {
+  const body = await c.req.json().catch(() => ({}))
+  const reqPath = body.path || "/"
+  const method = body.method || ""
+  if (!method) {
+    return c.json(
+      { code: 400, message: "Missing 'method' field", data: null },
+      400,
+    )
+  }
+  try {
+    let realPath = reqPath
+    if (reqPath.startsWith("/@s")) {
+      const shareRes = await resolveShare(reqPath, body.password || "", c.env)
+      if (!shareRes.ok) {
+        return c.json({ code: 400, message: shareRes.error, data: null })
+      }
+      if (shareRes.virtualList) {
+        return c.json({
+          code: 400,
+          message: "not supported for virtual share list",
+          data: null,
+        })
+      }
+      realPath = shareRes.realPath!
+    }
+    const data = await otherOperation(realPath, method, body)
+    return c.json({ code: 200, message: "success", data })
+  } catch (err: any) {
+    return c.json({ code: 500, message: err.message, data: null })
   }
 })
 

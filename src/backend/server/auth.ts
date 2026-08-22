@@ -7,6 +7,12 @@ import {
   deleteUserSshKey,
   serializeSshKey,
 } from "../internal/op/sshkey"
+import {
+  generateTotpSecret,
+  verifyTotpCode,
+  buildOtpauthUrl,
+  buildQrImageUrl,
+} from "../pkg/totp"
 import { JWT_SECRET } from "./middlewares"
 
 export const authRouter = new Hono()
@@ -94,6 +100,38 @@ async function getOrInitUsers(envCtx: any) {
   return { db, users: db.users }
 }
 
+// If the user has 2FA enabled, verify the provided OTP code.
+// - No code sent → 402 (frontend switches to the TOTP input)
+// - Wrong code   → 401
+async function checkUserOtp(
+  user: any,
+  body: any,
+): Promise<
+  | { ok: true }
+  | { ok: false; httpStatus: 401 | 402; code: 401 | 402; message: string }
+> {
+  if (!user.otp_secret) return { ok: true }
+  const otpCode = String(body.otp_code || "").trim()
+  if (!otpCode) {
+    return {
+      ok: false,
+      httpStatus: 402,
+      code: 402,
+      message: "2FA code required",
+    }
+  }
+  const valid = await verifyTotpCode(user.otp_secret, otpCode)
+  if (!valid) {
+    return {
+      ok: false,
+      httpStatus: 401,
+      code: 401,
+      message: "Invalid 2FA code",
+    }
+  }
+  return { ok: true }
+}
+
 // POST /api/auth/login
 authRouter.post("/login", async (c) => {
   const body = await c.req.json().catch(() => ({}))
@@ -119,6 +157,13 @@ authRouter.post("/login", async (c) => {
         (rawPassword === "admin" || hashedPassword === defaultAdminHash))
 
     if (isPasswordValid) {
+      const otpCheck = await checkUserOtp(matchedUser, body)
+      if (!otpCheck.ok) {
+        return c.json(
+          { code: otpCheck.code, message: otpCheck.message, data: null },
+          otpCheck.httpStatus,
+        )
+      }
       const payload = {
         id: matchedUser.id,
         username: matchedUser.username,
@@ -164,6 +209,13 @@ authRouter.post("/login/hash", async (c) => {
         inputHash === defaultAdminHash)
 
     if (isHashValid) {
+      const otpCheck = await checkUserOtp(matchedUser, body)
+      if (!otpCheck.ok) {
+        return c.json(
+          { code: otpCheck.code, message: otpCheck.message, data: null },
+          otpCheck.httpStatus,
+        )
+      }
       const payload = {
         id: matchedUser.id,
         username: matchedUser.username,
@@ -276,6 +328,7 @@ export const meHandler = async (c: any) => {
           disabled: !!dbUser.disabled,
           sso_id: dbUser.sso_id || "",
           allow_ldap: !!dbUser.allow_ldap,
+          otp: !!dbUser.otp_secret,
         },
       })
     }
@@ -292,6 +345,7 @@ export const meHandler = async (c: any) => {
         disabled: false,
         sso_id: "",
         allow_ldap: false,
+        otp: false,
       },
     })
   } catch (e: any) {
@@ -367,4 +421,58 @@ meRouter.post("/sshkey/delete", async (c) => {
     message: "success",
     data: getUserSshKeys(user).map(serializeSshKey),
   })
+})
+
+// POST /api/auth/2fa/generate — returns a fresh TOTP secret + QR image
+authRouter.post("/2fa/generate", async (c) => {
+  const auth = await authUserFromReq(c)
+  if (!auth) {
+    return c.json({ code: 401, message: "Unauthorized", data: null }, 401)
+  }
+  const { user } = auth
+  if (user.otp_secret) {
+    return c.json(
+      { code: 400, message: "2FA already enabled", data: null },
+      400,
+    )
+  }
+  const secret = generateTotpSecret()
+  const otpauth = buildOtpauthUrl(secret, user.username)
+  return c.json({
+    code: 200,
+    message: "success",
+    data: { qr: buildQrImageUrl(otpauth), secret },
+  })
+})
+
+// POST /api/auth/2fa/verify — validate a code against the generated secret,
+// then persist it on the user so future logins require the TOTP code.
+authRouter.post("/2fa/verify", async (c) => {
+  const auth = await authUserFromReq(c)
+  if (!auth) {
+    return c.json({ code: 401, message: "Unauthorized", data: null }, 401)
+  }
+  const { db, user } = auth
+  const body = await c.req.json().catch(() => ({}))
+  const code = String(body.code || "").trim()
+  const secret = String(body.secret || "").trim()
+  if (!secret) {
+    return c.json(
+      { code: 400, message: "Missing secret parameter", data: null },
+      400,
+    )
+  }
+  if (!/^[A-Z2-7]+$/i.test(secret)) {
+    return c.json(
+      { code: 400, message: "Invalid secret format", data: null },
+      400,
+    )
+  }
+  const valid = await verifyTotpCode(secret, code)
+  if (!valid) {
+    return c.json({ code: 400, message: "Invalid code", data: null }, 400)
+  }
+  user.otp_secret = secret.toUpperCase()
+  await saveDb(db, c.env)
+  return c.json({ code: 200, message: "success", data: null })
 })

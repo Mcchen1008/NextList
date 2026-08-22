@@ -514,6 +514,33 @@ export async function putItem(
   await driver.put(virtualPath, resolved.physical!, content)
 }
 
+/**
+ * Driver-specific extended operations (e.g. Aliyun video preview).
+ * Dispatches to the driver's optional `other(method, params)` hook.
+ */
+export async function otherOperation(
+  virtualPath: string,
+  method: string,
+  params: any = {},
+): Promise<any> {
+  const resolved = await resolvePath(virtualPath)
+  if (resolved.isVirtual) {
+    throw new Error("failed get storage: storage not found")
+  }
+  const driver = await getDriver(resolved.storage!.driver, resolved.storage)
+  const other = (driver as any).other
+  if (typeof other !== "function") {
+    throw new Error(
+      `driver '${resolved.storage.driver}' does not support other method '${method}'`,
+    )
+  }
+  return other.call(driver, method, {
+    ...params,
+    path: virtualPath,
+    physicalPath: resolved.physical,
+  })
+}
+
 function joinVirtualPath(dir: string, name: string): string {
   const base =
     "/" +
