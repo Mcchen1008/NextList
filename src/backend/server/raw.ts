@@ -32,15 +32,15 @@ rawRouter.get("/*", async (c) => {
     c.req.path.startsWith("/sd") ||
     c.req.path.startsWith("/api/sd")
 
-  const rawPath = c.req.path
-    .replace(/^\/api\/raw/, "")
-    .replace(/^\/api\/d/, "")
-    .replace(/^\/api\/sd/, "")
-    .replace(/^\/api\/p/, "")
-    .replace(/^\/raw/, "")
-    .replace(/^\/d/, "")
-    .replace(/^\/sd/, "")
-    .replace(/^\/p/, "")
+  const rawPath = c.req.path.replace(
+    // Strip at most ONE route prefix. A sequential .replace() chain would
+    // double-strip: `/api/p/dav/a.txt` → `/dav/a.txt` → `av/a.txt` (the
+    // leftover `/d` matches the `/d` rule again), breaking every download
+    // whose mount path's first segment starts with `d`/`p`/`sd` (e.g.
+    // WebDAV mounted at `/dav`) in proxy mode.
+    /^\/(?:api\/(?:raw|d|sd|p)|raw|d|sd|p)/,
+    "",
+  )
 
   const reqPath0 = decodeURIComponent(rawPath)
 

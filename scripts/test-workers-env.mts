@@ -77,6 +77,43 @@ await test("raw 下载（无存储时404）", async () => {
   if (status === 500) throw new Error("server error, should be 4xx")
 })
 
+await test("raw 代理路径前缀只剥离一次（/api/p/dav/... 挂载点以 d 开头）", async () => {
+  // Regression: the sequential prefix-strip chain in raw.ts double-stripped
+  // `/api/p/dav/a.txt` → `/dav/a.txt` → `av/a.txt` (the leftover `/d` hit
+  // the `/d` rule again), so any mount path starting with `d`/`p`/`sd`
+  // (e.g. WebDAV mounted at `/dav`) failed in proxy mode with
+  // "failed get storage: storage not found".
+  const login = await req("POST", "/api/auth/login", {
+    username: "admin",
+    password: "admin",
+  })
+  const token = login.json?.data?.token
+  if (!token) throw new Error("login failed, cannot run regression")
+
+  const createRes = await app.request("/api/admin/storage/create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      driver: "Local",
+      mount_path: "/dav",
+      addition: "{}",
+    }),
+  })
+  const created: any = await createRes.json()
+  if (created.code !== 200) {
+    throw new Error(`storage create failed: ${JSON.stringify(created)}`)
+  }
+
+  const res = await app.request("/api/p/dav/regression.txt")
+  const text = await res.text()
+  if (text.includes("failed get storage")) {
+    throw new Error(`mount /dav was not resolved (path double-stripped): ${text}`)
+  }
+})
+
 await test("登录 /api/auth/login", async () => {
   const { status, json } = await req("POST", "/api/auth/login", {
     username: "admin",
