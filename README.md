@@ -325,7 +325,7 @@ Node 容器模式持久化到 `public_data/db.json`；Cloudflare Workers 模式�
 
 ## 📄 许可证
 
-[MIT](LICENSE)
+[GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)
 
 ---
 
