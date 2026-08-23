@@ -11,7 +11,7 @@ import {
   VStack,
   Checkbox,
 } from "@hope-ui/solid"
-import { createMemo, createSignal, Show } from "solid-js"
+import { createMemo, createSignal, onMount, Show } from "solid-js"
 import { SwitchColorMode, SwitchLanguageWhite } from "~/components"
 import { useLoading, useT, useTitle, useRouter } from "~/hooks"
 import {
@@ -79,10 +79,7 @@ const Login = () => {
       (data) => {
         notify.success(t("login.success"))
         changeToken(data.token)
-        to(
-          decodeURIComponent(searchParams.redirect || base_path || "/"),
-          true,
-        )
+        to(decodeURIComponent(searchParams.redirect || base_path || "/"), true)
       },
       (msg, code) => {
         if (!needOpt() && code === 402) {
@@ -99,6 +96,15 @@ const Login = () => {
   if (ldapLoginEnabled) {
     setUseLdap(true)
   }
+
+  // "Browse as guest" is only offered while the guest account is enabled.
+  const [guestEnabled, setGuestEnabled] = createSignal(true)
+  onMount(async () => {
+    const resp = (await r.get("/public/guest")) as Resp<{ enabled: boolean }>
+    if (resp && resp.code === 200) {
+      setGuestEnabled(!!resp.data?.enabled)
+    }
+  })
 
   return (
     <Center zIndex="$docked" w="$full" h="100vh">
@@ -202,19 +208,21 @@ const Login = () => {
             {ldapLoginTips}
           </Checkbox>
         </Show>
-        <Button
-          w="$full"
-          colorScheme="accent"
-          onClick={() => {
-            changeToken()
-            to(
-              decodeURIComponent(searchParams.redirect || base_path || "/"),
-              true,
-            )
-          }}
-        >
-          {t("login.use_guest")}
-        </Button>
+        <Show when={guestEnabled()}>
+          <Button
+            w="$full"
+            colorScheme="accent"
+            onClick={() => {
+              changeToken()
+              to(
+                decodeURIComponent(searchParams.redirect || base_path || "/"),
+                true,
+              )
+            }}
+          >
+            {t("login.use_guest")}
+          </Button>
+        </Show>
         <Flex
           mt="$2"
           justifyContent="space-evenly"

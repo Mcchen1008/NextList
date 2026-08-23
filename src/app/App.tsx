@@ -111,7 +111,9 @@ const App: Component = () => {
             <Route
               path="*"
               element={
-                <UserOrGuest>
+                // Main site: without login, visitors are redirected to the
+                // login page unless the guest account is enabled by admin.
+                <UserOrGuest forceLogin>
                   <Home />
                 </UserOrGuest>
               }

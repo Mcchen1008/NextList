@@ -644,7 +644,10 @@ export const defaultDb = {
       role: 1,
       permission: 0,
       base_path: "/",
-      disabled: false,
+      // Guest (anonymous browsing) is disabled by default: without login
+      // the frontend redirects to the login page. Admins can re-enable it
+      // in 用户管理 (User Management) by unticking "disabled".
+      disabled: true,
       sso_id: "",
       allow_ldap: false,
       pwd_update_at: new Date().toISOString(),

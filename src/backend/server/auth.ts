@@ -89,7 +89,9 @@ async function getOrInitUsers(envCtx: any) {
         role: 1,
         permission: 0,
         base_path: "/",
-        disabled: false,
+        // Guest (anonymous browsing) is disabled by default so that
+        // unauthenticated visitors are sent to the login page.
+        disabled: true,
         sso_id: "",
         allow_ldap: false,
         pwd_update_at: new Date().toISOString(),

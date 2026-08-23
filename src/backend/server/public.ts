@@ -110,6 +110,16 @@ publicRouter.get("/settings", async (c) => {
   })
 })
 
+// GET /api/public/guest — whether anonymous (guest) browsing is currently
+// allowed. The frontend uses this to decide between rendering the home page
+// as a guest and redirecting unauthenticated visitors to the login page.
+publicRouter.get("/guest", async (c) => {
+  const db = await getDb(c.env)
+  const guest = (db.users || []).find((u: any) => u.username === "guest")
+  const enabled = !!guest && !guest.disabled
+  return c.json({ code: 200, message: "success", data: { enabled } })
+})
+
 publicRouter.get("/archive_extensions", (c) => {
   return c.json({
     code: 200,
