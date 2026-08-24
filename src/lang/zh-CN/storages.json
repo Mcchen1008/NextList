@@ -60,6 +60,7 @@
     "start_load_success": "开始重新加载",
     "load_all": "重新加载全部",
     "filter_by_driver": "按驱动类型筛选",
+    "layout": "布局",
     "table_layout": "表格布局"
   }
 }

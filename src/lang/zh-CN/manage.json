@@ -11,6 +11,7 @@
     "storages": "存储管理",
     "shares": "分享管理",
     "metas": "元数据管理",
+    "plugins": "插件管理",
     "profile": "个人资料",
     "about": "关于站点",
     "backup-restore": "备份与恢复",

@@ -14,7 +14,7 @@ import { Error, FullScreenLoading } from "~/components"
 import { useLoading, useRouter, useT } from "~/hooks"
 import { setSettings } from "~/store"
 import { Resp } from "~/types"
-import { base_path, bus, r } from "~/utils"
+import { base_path, bus, initPluginEngine, r } from "~/utils"
 import { MustUser, UserOrGuest } from "./MustUser"
 import "./index.css"
 import { globalStyles } from "./theme"
@@ -26,6 +26,7 @@ const Login = lazy(() => import("~/pages/login"))
 const App: Component = () => {
   const t = useT()
   globalStyles()
+  initPluginEngine()
   const isRouting = useIsRouting()
   const { to, pathname } = useRouter()
   const onTo = (path: string) => {

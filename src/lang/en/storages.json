@@ -60,6 +60,7 @@
     "start_load_success": "Start loading",
     "load_all": "Reload All",
     "filter_by_driver": "Filter by driver",
+    "layout": "Layout",
     "table_layout": "Table layout"
   }
 }

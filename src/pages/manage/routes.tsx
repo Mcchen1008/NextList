@@ -43,6 +43,14 @@ const hide_routes: Route[] = [
     to: "/2fa",
     component: lazy(() => import("./users/2fa")),
   },
+  {
+    to: "/plugins/add",
+    component: lazy(() => import("./plugins/AddPlugin")),
+  },
+  {
+    to: "/plugins/config/:id",
+    component: lazy(() => import("./plugins/ConfigPlugin")),
+  },
 ]
 
 const Placeholder = (props: { title: string; to: string }) => {
