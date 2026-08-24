@@ -201,6 +201,7 @@ adminRouter.get("/driver/names", (c) => {
       "189Cloud",
       "Lanzou",
       "WebDav",
+      "NeteaseMusic",
     ],
   })
 })
@@ -1257,6 +1258,51 @@ const driverConfigs: Record<string, any> = {
     ],
     config: {
       name: "WebDav",
+      local_sort: true,
+      only_local: false,
+      only_proxy: false,
+      no_cache: false,
+      no_upload: false,
+      need_ms: false,
+      default_root: "/",
+    },
+  },
+  NeteaseMusic: {
+    name: "NeteaseMusic",
+    default_mount_path: "/netease",
+    common: COMMON_FIELDS,
+    additional: [
+      {
+        name: "cookie",
+        type: "text",
+        default: "",
+        required: true,
+        help: "true",
+      },
+      {
+        name: "song_limit",
+        type: "number",
+        default: "200",
+        required: false,
+        help: "only get 200 songs by default",
+      },
+      {
+        name: "order_by",
+        type: "select",
+        options: "name,size,updated_at",
+        default: "name",
+        required: false,
+      },
+      {
+        name: "order_direction",
+        type: "select",
+        options: "asc,desc",
+        default: "asc",
+        required: false,
+      },
+    ],
+    config: {
+      name: "NeteaseMusic",
       local_sort: true,
       only_local: false,
       only_proxy: false,

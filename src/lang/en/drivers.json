@@ -885,7 +885,18 @@
   "NeteaseMusic": {
     "cookie": "Cookie",
     "song_limit": "Song limit",
-    "song_limit-tips": "only get 200 songs by default"
+    "song_limit-tips": "only get 200 songs by default",
+    "order_by": "Order by",
+    "order_bys": {
+      "name": "Name",
+      "size": "Size",
+      "updated_at": "Updated at"
+    },
+    "order_direction": "Order direction",
+    "order_directions": {
+      "asc": "Asc",
+      "desc": "Desc"
+    }
   },
   "Onedrive": {
     "api_url_address": "Api url address",

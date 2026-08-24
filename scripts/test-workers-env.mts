@@ -122,6 +122,40 @@ await test("登录 /api/auth/login", async () => {
   if (status !== 200 || json.code !== 200) throw new Error(`status ${status} code ${json.code}`)
 })
 
+await test("驱动注册包含 NeteaseMusic（/api/admin/driver/names）", async () => {
+  const login = await req("POST", "/api/auth/login", {
+    username: "admin",
+    password: "admin",
+  })
+  const token = login.json?.data?.token
+  if (!token) throw new Error("login failed, cannot check driver list")
+
+  const res = await app.request("/api/admin/driver/names", {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  const json: any = await res.json()
+  if (json.code !== 200 || !Array.isArray(json.data)) {
+    throw new Error(`driver/names failed: ${JSON.stringify(json)}`)
+  }
+  if (!json.data.includes("NeteaseMusic")) {
+    throw new Error(`NeteaseMusic missing from driver names: ${json.data}`)
+  }
+
+  const infoRes = await app.request(
+    "/api/admin/driver/info?driver=NeteaseMusic",
+    { headers: { Authorization: `Bearer ${token}` } },
+  )
+  const info: any = await infoRes.json()
+  if (
+    info.code !== 200 ||
+    !info.data?.additional?.some((f: any) => f.name === "cookie")
+  ) {
+    throw new Error(
+      `NeteaseMusic driver config missing cookie field: ${JSON.stringify(info)}`,
+    )
+  }
+})
+
 await test("debug 信息 /api/debug/info", async () => {
   const { status } = await req("GET", "/api/debug/info")
   if (status !== 200) throw new Error(`status ${status}`)

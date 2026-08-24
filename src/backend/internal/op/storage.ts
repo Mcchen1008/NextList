@@ -18,6 +18,7 @@ import {
 import { Cloud189Driver } from "../../drivers/189/driver"
 import { LanzouDriver } from "../../drivers/lanzou/driver"
 import { WebdavDriver } from "../../drivers/webdav/driver"
+import { NeteaseMusicDriver } from "../../drivers/netease_music/driver"
 
 // LocalDriver is not available in Cloudflare Workers (no fs module).
 // When running in Node.js container mode, import dynamically on first use.
@@ -300,6 +301,15 @@ export async function getDriver(
   ) {
     const addition = parseAddition(storageConfig)
     driver = new WebdavDriver(addition)
+    await driver.init?.()
+  } else if (
+    normDriver === "neteasemusic" ||
+    normDriver === "netease" ||
+    normDriver === "neteasecloud" ||
+    normDriver === "cloudmusic"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new NeteaseMusicDriver(addition)
     await driver.init?.()
   } else {
     throw new Error(

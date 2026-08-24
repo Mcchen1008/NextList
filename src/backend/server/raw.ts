@@ -93,6 +93,18 @@ rawRouter.get("/*", async (c) => {
             )
           }
 
+          if (fileItem && fileItem.raw_content != null) {
+            // Inline virtual content (e.g. NetEaseMusic .lrc lyrics): serve
+            // the text directly without an upstream fetch.
+            const content = String(fileItem.raw_content)
+            const bytes = new TextEncoder().encode(content)
+            c.header("Access-Control-Allow-Origin", "*")
+            c.header("Content-Type", "text/plain; charset=utf-8")
+            c.header("Content-Length", String(bytes.length))
+            c.header("Accept-Ranges", "bytes")
+            return c.body(bytes as any, 200)
+          }
+
           if (fileItem && fileItem.raw_url) {
             // WebDAV can opt out of proxying: when proxy_download is disabled
             // the direct (/d) link becomes a 302 redirect to the upstream URL.

@@ -10,6 +10,11 @@ export interface FileItem {
   raw_url?: string
   /** Headers that must accompany the raw_url request (e.g. Cookie, Referer for cloud drives) */
   raw_url_headers?: Record<string, string>
+  /**
+   * Inline file content (e.g. virtual lyric files). When set, the raw router
+   * serves this text directly instead of proxying raw_url.
+   */
+  raw_content?: string
 }
 
 export function calcFileType(name: string, isDir: boolean): number {

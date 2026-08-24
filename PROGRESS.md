@@ -40,6 +40,7 @@
 - [x] 123云盘 (123Pan) - _Implemented + CRC32 sign + token-first login (avoids overseas risk control)_
 - [x] 夸克网盘 (Quark Drive) - _Implemented + download headers (Cookie/Referer)_
 - [x] 百度网盘 (Baidu Netdisk) - _Re-ported from Go v4 driver (driver.go/util.go/types.go/meta.go): official/crack/crack_video download, chunked upload + rapid upload, MD5 obfuscation (EncryptMd5/DecryptMd5), vip slice sizes, dynamic upload domain, token persistence_
+- [x] 网易云音乐云盘 (NeteaseMusic) - _Ported from Go v4 driver: cloud song list (weapi), linuxapi play URL, virtual .lrc lyrics served inline (raw_content), cloud delete, full upload pipeline (check → alloc token → NOS upload → publish) + ID3v2 tag reading; pure Web Crypto (AES-CBC/ECB, raw RSA via BigInt) verified byte-exact against an independent reference_
 - [x] ~~S3~~ - **_Removed by request_**
 - [x] 天翼云盘 (189Cloud) - _Re-ported from Polonium-salts/openlistnext (Alpha 0.4.2): chunked session upload (createUploadSession/uploadPart/completeUploadSession), large-ID safe JSON parsing, trusted redirect handling, deferred cookie persistence (consumePendingCookie + flushPendingDriverState), download headers; 20 unit tests (npm run test:189)_
 - [ ] FTP / SFTP
@@ -63,7 +64,7 @@
 - [x] KV 持久化（NEXTLIST_KV binding，wrangler.toml 已配置）
 - [x] 动态 base 移除（静态资源 /assets/\* 直接由 ASSETS binding 提供）
 - [x] 回归测试：scripts/test-workers-env.mts (11 项)
-- [x] 驱动注册：Local（守卫）/ Quark / BaiduNetdisk / 123Pan / Onedrive / AliyundriveOpen / GoogleDrive
+- [x] 驱动注册：Local（守卫）/ Quark / BaiduNetdisk / 123Pan / Onedrive / AliyundriveOpen / GoogleDrive / NeteaseMusic
 
 ## Developer TODOs
 
