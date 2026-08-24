@@ -264,24 +264,7 @@ export async function getDriver(
     normDriver === "189pan"
   ) {
     const addition = parseAddition(storageConfig)
-    driver = new Cloud189Driver(addition, async (cookie) => {
-      try {
-        const db = await getDb()
-        const st = (db.storages || []).find(
-          (s: any) => s.id === storageConfig?.id,
-        )
-        if (!st) return
-        const stAddition =
-          typeof st.addition === "string"
-            ? JSON.parse(st.addition || "{}")
-            : st.addition || {}
-        stAddition.cookie = cookie
-        st.addition = JSON.stringify(stAddition)
-        await saveDb(db)
-      } catch (e) {
-        console.warn("[189Cloud] failed to persist cookie:", e)
-      }
-    })
+    driver = new Cloud189Driver(addition)
     await driver.init?.()
   } else if (
     normDriver === "lanzou" ||
@@ -328,6 +311,105 @@ export async function getDriver(
   return driver
 }
 
+export interface StorageRequestContext {
+  waitUntil?: (promise: Promise<unknown>) => void
+}
+
+const cookiePersistenceCache = new Map<string, Promise<void>>()
+
+function isCloud189Driver(driverName: string): boolean {
+  const normDriver = (driverName || "").toLowerCase().replace(/[^a-z0-9]/g, "")
+  return (
+    normDriver === "189" ||
+    normDriver === "189cloud" ||
+    normDriver === "cloud189" ||
+    normDriver === "ctyun" ||
+    normDriver === "189pan"
+  )
+}
+
+export async function scheduleStoragePersistence(
+  waitUntil: StorageRequestContext["waitUntil"],
+  persistence: Promise<unknown>,
+): Promise<void> {
+  if (waitUntil) {
+    try {
+      waitUntil(persistence)
+      return
+    } catch {
+      // Fall back to awaiting when the execution context is unavailable.
+    }
+  }
+  await persistence
+}
+
+async function persistStorageCookie(
+  storageConfig: any,
+  cookie: string,
+): Promise<void> {
+  const storageId = String(storageConfig?.id || "")
+  if (!storageId) return
+
+  const previous = cookiePersistenceCache.get(storageId)
+  const task = (previous || Promise.resolve())
+    .catch(() => {})
+    .then(async () => {
+      const db = await getDb()
+      const st = (db.storages || []).find(
+        (candidate: any) => String(candidate.id) === storageId,
+      )
+      if (!st) return
+
+      const stAddition =
+        typeof st.addition === "string"
+          ? JSON.parse(st.addition || "{}")
+          : st.addition || {}
+      stAddition.cookie = cookie
+      st.addition = JSON.stringify(stAddition)
+      if (String(storageConfig?.id) === storageId) {
+        storageConfig.addition = st.addition
+      }
+      await saveDb(db)
+    })
+
+  cookiePersistenceCache.set(storageId, task)
+  try {
+    await task
+  } finally {
+    if (cookiePersistenceCache.get(storageId) === task) {
+      cookiePersistenceCache.delete(storageId)
+    }
+  }
+}
+
+/**
+ * One-shot flush of driver state that was refreshed during a request
+ * (e.g. 189Cloud Set-Cookie). The driver keeps the live cookie in memory;
+ * here it is persisted outside the request's critical path when a
+ * `waitUntil` execution context is available.
+ */
+export async function flushPendingDriverState(
+  driverName: string,
+  storageConfig: any,
+  driver: StorageDriver,
+  requestContext?: StorageRequestContext,
+): Promise<void> {
+  if (!isCloud189Driver(driverName)) return
+
+  const consumePendingCookie = (
+    driver as StorageDriver & {
+      consumePendingCookie?: () => string | null
+    }
+  ).consumePendingCookie
+  const cookie = consumePendingCookie?.call(driver)
+  if (!cookie) return
+
+  const persistence = persistStorageCookie(storageConfig, cookie).catch((e) => {
+    console.warn("[189Cloud] failed to persist cookie:", e)
+  })
+  await scheduleStoragePersistence(requestContext?.waitUntil, persistence)
+}
+
 export async function listItems(
   virtualPath: string,
 ): Promise<{ content: FileItem[]; provider: string }> {
@@ -338,8 +420,12 @@ export async function listItems(
   if (resolved.storage) {
     driverName = resolved.storage.driver
     const driver = await getDriver(driverName, resolved.storage)
-    // Get raw items from driver
-    items = await driver.list(virtualPath, resolved.physical!)
+    try {
+      // Get raw items from driver
+      items = await driver.list(virtualPath, resolved.physical!)
+    } finally {
+      await flushPendingDriverState(driverName, resolved.storage, driver)
+    }
   } else if (!resolved.isVirtual) {
     throw new Error("failed get storage: storage not found")
   }
@@ -402,7 +488,12 @@ export async function getItem(
 
   const driverName = resolved.storage ? resolved.storage.driver : "Local"
   const driver = await getDriver(driverName, resolved.storage)
-  const item = await driver.get(virtualPath, resolved.physical!)
+  let item: FileItem
+  try {
+    item = await driver.get(virtualPath, resolved.physical!)
+  } finally {
+    await flushPendingDriverState(driverName, resolved.storage, driver)
+  }
   if (!item.type) {
     item.type = calcFileType(item.name, item.is_dir)
   }
@@ -419,7 +510,15 @@ export async function makeDirectory(virtualPath: string): Promise<void> {
     throw new Error("failed get storage: storage not found")
   }
   const driver = await getDriver(resolved.storage!.driver, resolved.storage)
-  await driver.mkdir(virtualPath, resolved.physical!)
+  try {
+    await driver.mkdir(virtualPath, resolved.physical!)
+  } finally {
+    await flushPendingDriverState(
+      resolved.storage!.driver,
+      resolved.storage,
+      driver,
+    )
+  }
 }
 
 export async function renameItem(
@@ -431,7 +530,15 @@ export async function renameItem(
     throw new Error("failed get storage: storage not found")
   }
   const driver = await getDriver(resolved.storage!.driver, resolved.storage)
-  await driver.rename(virtualPath, resolved.physical!, newName)
+  try {
+    await driver.rename(virtualPath, resolved.physical!, newName)
+  } finally {
+    await flushPendingDriverState(
+      resolved.storage!.driver,
+      resolved.storage,
+      driver,
+    )
+  }
 }
 
 export async function removeItems(dir: string, names: string[]): Promise<void> {
@@ -442,7 +549,15 @@ export async function removeItems(dir: string, names: string[]): Promise<void> {
       throw new Error("failed get storage: storage not found")
     }
     const driver = await getDriver(resolved.storage!.driver, resolved.storage)
-    await driver.remove(itemVirtual, resolved.physical!, [name])
+    try {
+      await driver.remove(itemVirtual, resolved.physical!, [name])
+    } finally {
+      await flushPendingDriverState(
+        resolved.storage!.driver,
+        resolved.storage,
+        driver,
+      )
+    }
   }
 }
 
@@ -464,13 +579,21 @@ export async function moveItems(
       srcResolved.storage!.driver,
       srcResolved.storage,
     )
-    await driver.move(
-      srcDir,
-      dstDir,
-      [name],
-      srcResolved.physical!,
-      dstResolved.physical!,
-    )
+    try {
+      await driver.move(
+        srcDir,
+        dstDir,
+        [name],
+        srcResolved.physical!,
+        dstResolved.physical!,
+      )
+    } finally {
+      await flushPendingDriverState(
+        srcResolved.storage!.driver,
+        srcResolved.storage,
+        driver,
+      )
+    }
   }
 }
 
@@ -492,13 +615,21 @@ export async function copyItems(
       srcResolved.storage!.driver,
       srcResolved.storage,
     )
-    await driver.copy(
-      srcDir,
-      dstDir,
-      [name],
-      srcResolved.physical!,
-      dstResolved.physical!,
-    )
+    try {
+      await driver.copy(
+        srcDir,
+        dstDir,
+        [name],
+        srcResolved.physical!,
+        dstResolved.physical!,
+      )
+    } finally {
+      await flushPendingDriverState(
+        srcResolved.storage!.driver,
+        srcResolved.storage,
+        driver,
+      )
+    }
   }
 }
 
@@ -511,7 +642,15 @@ export async function putItem(
     throw new Error("failed get storage: storage not found")
   }
   const driver = await getDriver(resolved.storage!.driver, resolved.storage)
-  await driver.put(virtualPath, resolved.physical!, content)
+  try {
+    await driver.put(virtualPath, resolved.physical!, content)
+  } finally {
+    await flushPendingDriverState(
+      resolved.storage!.driver,
+      resolved.storage,
+      driver,
+    )
+  }
 }
 
 /**

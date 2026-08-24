@@ -1,7 +1,7 @@
 import { Hono } from "hono"
 import { resolvePath } from "../internal/model/db"
 import { parseRangeHeader } from "../internal/stream/stream"
-import { getDriver } from "../internal/op/storage"
+import { getDriver, flushPendingDriverState } from "../internal/op/storage"
 import { resolveShare } from "../internal/op/share"
 
 let fsPromises: any = null
@@ -82,7 +82,16 @@ rawRouter.get("/*", async (c) => {
             resolved.storage.driver,
             resolved.storage,
           )
-          const fileItem = await driver.get(reqPath, resolved.physical)
+          let fileItem: any
+          try {
+            fileItem = await driver.get(reqPath, resolved.physical)
+          } finally {
+            await flushPendingDriverState(
+              resolved.storage.driver,
+              resolved.storage,
+              driver,
+            )
+          }
 
           if (fileItem && fileItem.raw_url) {
             // WebDAV can opt out of proxying: when proxy_download is disabled

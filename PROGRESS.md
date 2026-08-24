@@ -41,7 +41,7 @@
 - [x] 夸克网盘 (Quark Drive) - _Implemented + download headers (Cookie/Referer)_
 - [x] 百度网盘 (Baidu Netdisk) - _Re-ported from Go v4 driver (driver.go/util.go/types.go/meta.go): official/crack/crack_video download, chunked upload + rapid upload, MD5 obfuscation (EncryptMd5/DecryptMd5), vip slice sizes, dynamic upload domain, token persistence_
 - [x] ~~S3~~ - **_Removed by request_**
-- [ ] 天翼云盘 (189Cloud)
+- [x] 天翼云盘 (189Cloud) - _Re-ported from Polonium-salts/openlistnext (Alpha 0.4.2): chunked session upload (createUploadSession/uploadPart/completeUploadSession), large-ID safe JSON parsing, trusted redirect handling, deferred cookie persistence (consumePendingCookie + flushPendingDriverState), download headers; 20 unit tests (npm run test:189)_
 - [ ] FTP / SFTP
 - [ ] PikPak
 - [ ] Seafile
