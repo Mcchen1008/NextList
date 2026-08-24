@@ -317,7 +317,7 @@ Node 容器模式持久化到 `public_data/db.json`；Cloudflare Workers 模式�
 
 | 项目                  | 说明                                                              | 链接                                                                          |
 | --------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| **OpenListNext**      | JS/TS 内核上游（OpenList 的 Serverless 重构版），插件格式双向兼容 | <https://github.com/Polonium-salts/openlistnext> · <https://openlistnext.org> |
+| **OpenListNext**      | JS/TS 内核上游（OpenList 的 Serverless 重构版），插件格式双向兼容 | <https://github.com/Polonium-salts/openlistnext>                                  |
 | **OpenList**          | 本项目的上游原版（Go 后端）                                       | <https://github.com/OpenListTeam/OpenList>                                    |
 | **OpenList Docs**     | 官方文档（配置 / 驱动 / FAQ）                                     | <https://doc.oplist.org/>                                                     |
 | **AList**             | OpenList 的前身，开箱即用的文件列表程序                           | <https://github.com/alist-org/alist>                                          |
