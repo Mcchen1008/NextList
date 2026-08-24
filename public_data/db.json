@@ -58,7 +58,7 @@
       "help": "Current version",
       "type": "string",
       "group": 1,
-      "value": "v4.2.3"
+      "value": "alpha0.1"
     },
     {
       "key": "main_color",

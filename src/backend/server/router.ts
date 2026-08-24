@@ -59,7 +59,7 @@ export function setupRouter(app: Hono) {
     c.json({
       ok: true,
       name: "NextList",
-      version: "v4.2.3",
+      version: "alpha0.1",
       environment: (c.env as any)?.ENVIRONMENT || "development",
     }),
   )

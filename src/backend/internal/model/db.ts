@@ -4,7 +4,7 @@ export const defaultDb = {
     // Group 1: SITE (https://doc.oplist.org/configuration/site)
     {
       key: "version",
-      value: "v4.2.3",
+      value: "alpha0.1",
       type: "string",
       help: "Application Version",
       group: 1,

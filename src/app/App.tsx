@@ -65,7 +65,7 @@ const App: Component = () => {
             home_container: "hope_container",
             home_icon: "nextlist",
             settings_layout: "simple",
-            version: "v4.2.3",
+            version: "alpha0.1",
           }
           setSettings(defaultSettings)
         }
