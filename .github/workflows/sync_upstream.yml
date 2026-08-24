@@ -1,0 +1,97 @@
+# Sync with Upstream
+#
+# 供 Fork 用户一键同步上游最新代码：
+#   1. Fork 本仓库后，在其 Actions 页面启用 workflows（首次需确认）。
+#   2. 打开 "Sync with Upstream" → Run workflow。
+#   3. 工作流会拉取上游 https://github.com/Mcchen1008/NextList 的指定分支，
+#      合并（merge / rebase）到你 Fork 的对应分支并推送。
+#
+# 说明：
+#   - 手动触发 (workflow_dispatch) 在任何 Fork 中都可运行，无需额外配置密钥。
+#   - schedule 定时触发在 Fork 中默认不启用；如需定时同步，请在 Fork 的
+#     Actions 设置中手动启用，或直接使用手动触发。
+#   - 若你的本地修改与上游冲突，工作流会失败并提示，请本地解决冲突后重试。
+
+name: Sync with Upstream
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "要同步的分支（默认 main）"
+        required: false
+        default: main
+      method:
+        description: "合并方式：merge（保留你的提交，产生合并提交）或 rebase（线性历史）"
+        required: false
+        default: merge
+        type: choice
+        options:
+          - merge
+          - rebase
+  schedule:
+    # 每天凌晨 3 点自动同步（仅对已启用定时任务的仓库生效）
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # 上游仓库，如需同步其他上游请修改此处
+  UPSTREAM_REPO: https://github.com/Mcchen1008/NextList.git
+  # 手动触发时使用输入参数，定时触发时回退到 main
+  BRANCH: ${{ inputs.branch || 'main' }}
+  METHOD: ${{ inputs.method || 'merge' }}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    name: Sync from Mcchen1008/NextList
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ env.BRANCH }}
+          # 默认 GITHUB_TOKEN 对当前仓库（含 Fork）有写权限，无需配置密钥
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote and fetch
+        run: |
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream "${{ env.UPSTREAM_REPO }}"
+          git fetch upstream "${{ env.BRANCH }}" --force
+          echo "Upstream head: $(git rev-parse --short upstream/${{ env.BRANCH }})"
+
+      - name: Merge upstream changes
+        run: |
+          if [ "${{ env.METHOD }}" = "rebase" ]; then
+            echo "Rebasing onto upstream/${{ env.BRANCH }} ..."
+            git rebase "upstream/${{ env.BRANCH }}"
+          else
+            echo "Merging upstream/${{ env.BRANCH }} ..."
+            git merge --no-edit "upstream/${{ env.BRANCH }}"
+          fi
+        shell: bash
+
+      - name: Push to fork
+        run: |
+          # 无新提交时 git push 会输出 "Everything up-to-date" 并正常退出
+          git push origin "${{ env.BRANCH }}"
+          echo "✅ ${{ github.repository }} 已同步到上游 ${{ env.UPSTREAM_REPO }} (${{ env.BRANCH }})"
+
+      - name: Notify conflict
+        if: failure()
+        run: |
+          echo "::error::同步失败：你的分支与上游存在冲突。"
+          echo "::error::请在本仓库的 Actions 页面查看日志，或在本地执行："
+          echo "::error::  git fetch upstream && git merge upstream/${{ env.BRANCH }}"
+          echo "::error::手动解决冲突后提交，或改用 Pull Request 合并上游变更。"

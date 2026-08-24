@@ -140,6 +140,21 @@ pnpm dev
 
 ---
 
+## 🔄 Fork 自动同步上游
+
+本仓库内置 **Sync with Upstream** 工作流（[.github/workflows/sync_upstream.yml](.github/workflows/sync_upstream.yml)）。Fork 本仓库后，运行该工作流即可自动拉取上游 [Mcchen1008/NextList](https://github.com/Mcchen1008/NextList) 的最新代码，合并到你 Fork 的分支：
+
+1. Fork 本仓库后，打开你 Fork 的 **Actions** 页面，按提示启用 workflows（首次需点击确认）。
+2. 进入 **Sync with Upstream** → **Run workflow**。
+3. 可选参数：
+   - `branch`：要同步的分支（默认 `main`）。
+   - `method`：`merge`（保留你的本地提交、产生合并提交，默认）或 `rebase`（线性历史）。
+4. 运行完成后你的 Fork 即与上游同步；也可在 Fork 的 Actions 设置中启用定时任务自动同步。
+
+> ⚠️ 冲突处理：若你 Fork 中的本地修改与上游冲突，工作流会失败并输出提示。此时请在本地 `git fetch upstream` 后手动解决冲突，或改为提交 Pull Request 合并上游变更。
+
+---
+
 ## 📦 部署方法
 
 | 方式                           | 命令                    | 说明                                                                       |
