@@ -27,7 +27,7 @@
     "start": "node dist/api/[...route].js",
     "dev": "vite --port 3000 --host 0.0.0.0",
     "build": "vite build && npm run build:edge",
-    "build:edge": "esbuild api/[...route].ts --bundle --platform=neutral --outfile=dist/api/[...route].js --minify --format=esm",
+    "build:edge": "node scripts/build-edge.mjs",
     "dev:worker": "wrangler dev",
     "deploy:worker": "wrangler deploy --yes",
     "deploy": "node scripts/deploy.js",
@@ -73,6 +73,7 @@
     "wrangler": "^4.0.0"
   },
   "dependencies": {
+    "@edgeone/pages-blob": "^0.0.14",
     "@egjs/view360": "4.0.0-beta.7",
     "@embedpdf/snippet": "^2.14.4",
     "@hono/node-server": "^2.0.8",

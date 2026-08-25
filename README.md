@@ -157,12 +157,13 @@ pnpm dev
 
 ## 📦 部署方法
 
-| 方式                           | 命令                    | 说明                                                                       |
-| ------------------------------ | ----------------------- | -------------------------------------------------------------------------- |
-| **Cloudflare Workers**（推荐） | `pnpm deploy`           | 自动检测 / 创建 KV namespace，构建并部署，静态资源由 ASSETS binding 托管   |
-| **Vercel / EdgeOne**           | `pnpm build` 后平台导入 | 前端静态资源输出到 `dist/`，API 由 `api/[...route].ts` Serverless 句柄提供 |
-| **AWS Lambda**                 | `pnpm sls:deploy`       | 基于 `serverless.yml` 与 `handler.ts`                                      |
-| **本地开发**                   | `pnpm dev`              | Vite + Hono 一体化开发服务器（端口 3000）                                  |
+| 方式                           | 命令                    | 说明                                                                                  |
+| ------------------------------ | ----------------------- | ------------------------------------------------------------------------------------- |
+| **Cloudflare Workers**（推荐） | `pnpm deploy`           | 自动检测 / 创建 KV namespace，构建并部署，静态资源由 ASSETS binding 托管              |
+| **EdgeOne Makers**             | 控制台导入仓库即可      | Node 云函数 + Blob 存储 + SPA 兜底，原生支持，详见 [docs/edgeone.md](docs/edgeone.md) |
+| **Vercel**                     | `pnpm build` 后平台导入 | 前端静态资源输出到 `dist/`，API 由 `api/[...route].ts` Serverless 句柄提供            |
+| **AWS Lambda**                 | `pnpm sls:deploy`       | 基于 `serverless.yml` 与 `handler.ts`                                                 |
+| **本地开发**                   | `pnpm dev`              | Vite + Hono 一体化开发服务器（端口 3000）                                             |
 
 ### 方式一：Cloudflare Workers（推荐，免费边缘部署）
 
@@ -183,7 +184,17 @@ pnpm dev:worker                       # 本地预览（wrangler dev）
 
 详细步骤见 [docs/deploy-cloudflare-workers.md](docs/deploy-cloudflare-workers.md)。
 
-### 方式二：Vercel / EdgeOne / AWS Lambda
+### 方式二：腾讯云 EdgeOne Makers（原生支持）
+
+项目内置 `edgeone.json`、Node 云函数入口（`cloud-functions/[[default]].js`）、边缘中间件（`middleware.js`）与 `@edgeone/pages-blob` 持久化适配：
+
+1. 在 [EdgeOne Makers 控制台](https://console.edgeone.ai/makers) 导入 Git 仓库，平台自动读取 `edgeone.json` 完成构建。
+2. 存储无需手动配置：配置数据自动持久化到 Blob 存储（`nextlist_db` 命名空间）。
+3. 部署后通过 `*.edgeone.cool` 域名访问，默认管理账号 `admin` / `admin`。
+
+详细步骤见 [docs/edgeone.md](docs/edgeone.md)。
+
+### 方式三：Vercel / AWS Lambda
 
 ```bash
 # 生产构建：Vite 前端（dist/）+ esbuild 边缘后端（dist/api/[...route].js）
@@ -191,10 +202,9 @@ pnpm build
 ```
 
 - **Vercel**：仓库根目录的 `vercel.json` 会自动识别 `api/[...route].ts`（Hono Vercel 句柄）与 `dist/` 静态资源
-- **EdgeOne**：`edgeone.json` 配置边缘函数
 - **AWS Lambda**：`pnpm sls:deploy` 基于 `serverless.yml` 部署，`handler.ts` 导出 Lambda 句柄
 
-### 方式三：Node 容器 / 自托管
+### 方式四：Node 容器 / 自托管
 
 > [!IMPORTANT]
 > 本项目是**边缘优先**架构：`npm run start` 加载的是 Serverless 句柄产物（`dist/api/[...route].js`，Vercel 格式），**不包含端口监听**，因此不能直接当作常驻服务启动。
@@ -330,13 +340,13 @@ Node 容器模式持久化到 `public_data/db.json`；Cloudflare Workers 模式�
 
 ## 🤝 相关项目
 
-| 项目                  | 说明                                                              | 链接                                                                          |
-| --------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| **OpenListNext**      | JS/TS 内核上游（OpenList 的 Serverless 重构版），插件格式双向兼容 | <https://github.com/Polonium-salts/openlistnext>                                  |
-| **OpenList**          | 本项目的上游原版（Go 后端）                                       | <https://github.com/OpenListTeam/OpenList>                                    |
-| **OpenList Docs**     | 官方文档（配置 / 驱动 / FAQ）                                     | <https://doc.oplist.org/>                                                     |
-| **AList**             | OpenList 的前身，开箱即用的文件列表程序                           | <https://github.com/alist-org/alist>                                          |
-| **OpenList 在线 API** | 部分网盘驱动的 token 获取服务                                     | <https://api.oplist.org/>                                                     |
+| 项目                  | 说明                                                              | 链接                                             |
+| --------------------- | ----------------------------------------------------------------- | ------------------------------------------------ |
+| **OpenListNext**      | JS/TS 内核上游（OpenList 的 Serverless 重构版），插件格式双向兼容 | <https://github.com/Polonium-salts/openlistnext> |
+| **OpenList**          | 本项目的上游原版（Go 后端）                                       | <https://github.com/OpenListTeam/OpenList>       |
+| **OpenList Docs**     | 官方文档（配置 / 驱动 / FAQ）                                     | <https://doc.oplist.org/>                        |
+| **AList**             | OpenList 的前身，开箱即用的文件列表程序                           | <https://github.com/alist-org/alist>             |
+| **OpenList 在线 API** | 部分网盘驱动的 token 获取服务                                     | <https://api.oplist.org/>                        |
 
 ---
 
