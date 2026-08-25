@@ -6854,7 +6854,7 @@ var hi = {
     settings: [
       {
         key: "version",
-        value: "alpha0.1",
+        value: "alpha0.1.2",
         type: "string",
         help: "Application Version",
         group: 1,
@@ -35658,7 +35658,7 @@ Lt.get("/settings", async (s) => {
     t = {
       title: "NextList Serverless",
       site_title: "NextList Serverless",
-      version: "alpha0.1",
+      version: "alpha0.1.2",
       announcement: "",
       pagination_type: "all",
       default_page_size: "30",
@@ -36005,7 +36005,7 @@ function sm(s) {
       e.json({
         ok: !0,
         name: "NextList",
-        version: "alpha0.1",
+        version: "alpha0.1.2",
         environment: e.env?.ENVIRONMENT || "development",
       }),
     ))

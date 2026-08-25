@@ -12,7 +12,7 @@ publicRouter.get("/settings", async (c) => {
     // --- Site ---
     title: "NextList Serverless",
     site_title: "NextList Serverless",
-    version: "alpha0.1",
+    version: "alpha0.1.2",
     announcement: "",
     pagination_type: "all",
     default_page_size: "30",

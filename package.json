@@ -1,6 +1,6 @@
 {
   "name": "nextlist",
-  "version": "alpha0.1",
+  "version": "alpha0.1.2",
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "author": {
