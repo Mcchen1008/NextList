@@ -19,6 +19,16 @@ import { Cloud189Driver } from "../../drivers/189/driver"
 import { LanzouDriver } from "../../drivers/lanzou/driver"
 import { WebdavDriver } from "../../drivers/webdav/driver"
 import { NeteaseMusicDriver } from "../../drivers/netease_music/driver"
+import { PikPakDriver } from "../../drivers/pikpak/driver"
+import { SeafileDriver } from "../../drivers/seafile/driver"
+import { UssDriver } from "../../drivers/uss/driver"
+import { TeambitionDriver } from "../../drivers/teambition/driver"
+import { MediaTrackDriver } from "../../drivers/mediatrack/driver"
+import { YandexDiskDriver } from "../../drivers/yandex_disk/driver"
+import { TeraboxDriver } from "../../drivers/terabox/driver"
+import { UcDriver } from "../../drivers/uc/driver"
+import { Cloud139Driver } from "../../drivers/139/driver"
+import { MediaFireDriver } from "../../drivers/mediafire/driver"
 
 // LocalDriver is not available in Cloudflare Workers (no fs module).
 // When running in Node.js container mode, import dynamically on first use.
@@ -310,6 +320,56 @@ export async function getDriver(
   ) {
     const addition = parseAddition(storageConfig)
     driver = new NeteaseMusicDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "pikpak") {
+    const addition = parseAddition(storageConfig)
+    driver = new PikPakDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "seafile") {
+    const addition = parseAddition(storageConfig)
+    driver = new SeafileDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "uss" || normDriver === "upyun") {
+    const addition = parseAddition(storageConfig)
+    driver = new UssDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "teambition") {
+    const addition = parseAddition(storageConfig)
+    driver = new TeambitionDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "mediatrack" || normDriver === "fenmiao") {
+    const addition = parseAddition(storageConfig)
+    driver = new MediaTrackDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "yandexdisk" || normDriver === "yandex") {
+    const addition = parseAddition(storageConfig)
+    driver = new YandexDiskDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "terabox") {
+    const addition = parseAddition(storageConfig)
+    driver = new TeraboxDriver(addition)
+    await driver.init?.()
+  } else if (
+    normDriver === "uc" ||
+    normDriver === "ucdrive" ||
+    normDriver === "ucpan"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new UcDriver(addition)
+    await driver.init?.()
+  } else if (
+    normDriver === "139" ||
+    normDriver === "139yun" ||
+    normDriver === "139cloud" ||
+    normDriver === "mcloud" ||
+    normDriver === "caiyun"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new Cloud139Driver(addition)
+    await driver.init?.()
+  } else if (normDriver === "mediafire") {
+    const addition = parseAddition(storageConfig)
+    driver = new MediaFireDriver(addition)
     await driver.init?.()
   } else {
     throw new Error(

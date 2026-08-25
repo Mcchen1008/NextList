@@ -44,19 +44,19 @@
 - [x] ~~S3~~ - **_Removed by request_**
 - [x] 天翼云盘 (189Cloud) - _Re-ported from Polonium-salts/openlistnext (Alpha 0.4.2): chunked session upload (createUploadSession/uploadPart/completeUploadSession), large-ID safe JSON parsing, trusted redirect handling, deferred cookie persistence (consumePendingCookie + flushPendingDriverState), download headers; 20 unit tests (npm run test:189)_
 - [ ] FTP / SFTP
-- [ ] PikPak
-- [ ] Seafile
-- [ ] 又拍云对象存储 (Upyun)
-- [ ] WebDAV
-- [ ] Teambition
-- [ ] MediaFire
-- [ ] 分秒帧 (Fenmiao)
-- [ ] ProtonDrive
-- [ ] 和彩云 (Mcloud)
-- [ ] YandexDisk
-- [ ] Terabox
-- [ ] UC网盘 (UC Drive)
-- [ ] 迅雷网盘 (Xunlei Drive)
+- [x] PikPak - _Ported from Go v4 driver (Web platform: WebClientID/Secret + WebAlgorithms captcha sign + MD5 device-id from username+password). login → refreshToken → captchaTokenAtLogin flow, token refresh retry on 4122/4121/16/9. list/get/mkdir/move/copy/rename/remove implemented; put() throws (requires OSS multipart upload pipeline)._
+- [x] Seafile - _Ported from Go v4 driver: token-based auth (token or username/password), supports library listing at root, dir listing, mkdir/move/rename/copy/remove + multipart upload via /api2/repos/{id}/upload-link/. Encrypted libraries decryptable via repo_pwd._
+- [x] 又拍云对象存储 (Upyun/USS) - _Ported from Go v4 driver using pure fetch (no upyun-sdk): Basic auth with operator:password, list via X-Upyun-List header, move/copy via X-Upyun-Move/Copy-Source headers, anti-theft-chain URL signing via MD5(prefix+expireAt+key). Includes pure-JS MD5 (RFC 1321) since Web Crypto Subtle doesn't support MD5._
+- [x] WebDAV
+- [x] Teambition - _Ported from Go v4 driver: cookie-based auth (china/international region switch), collections + works dual listing, archive-based remove, fork-based copy, move-based rename. put() throws (requires S3 upload token pipeline)._
+- [x] MediaFire - _Ported from Go v4 driver (simplified): cookie + auto-acquired session_token via /application/get_session_token.php, renew_session_token for token refresh, /folder/get_content.php dual fetch (folders + files with chunk pagination), /file/get_links.php direct_download with HEAD redirect follow. list/get/mkdir/move/copy/rename/remove implemented; put() throws (requires action token + chunked upload pipeline)._
+- [x] 分秒帧 (Fenmiao / MediaTrack) - _Ported from Go v4 driver: Bearer access_token auth, /v4/assets/{id}/children paginated listing, /v1/download_token/asset → /v1/download/redirect redirect chain for download URL. list/get/mkdir/move/copy/rename/remove implemented; put() throws (requires COS S3 temporary credentials pipeline)._
+- [ ] ProtonDrive - **_Skipped: requires full ProtonMail crypto stack (SRP-6a + bcrypt + Curve25519 + AES-256-GCM + OpenPGP packet parsing). ~3000 LOC of Go → ~3000+ LOC TS. Documented in `drivers/proton_drive/types.ts` as future work. Recommended: use `@pdrive/sdk` npm package on Node.js container backend (breaks CF Workers compat)._**
+- [x] 和彩云 (Mcloud / 139Cloud) - _Ported from Go v4 driver (simplified, personal_new variant only): Base64-encoded authorization with type:account:token format, XML-based token refresh via /tellin/authTokenRefresh.do, route policy query for personal cloud host, mcloud-sign request signing (encodeURIComponent + sort + base64 + MD5). list/get/mkdir/move/copy/rename/remove implemented; put() throws (requires chunked upload pipeline)._
+- [x] YandexDisk - _Ported from Go v4 driver: OAuth refresh_token + access_token flow, supports online API (api.oplist.org/yandexui/renewapi) or direct oauth.yandex.com/token refresh, /v1/disk/resources REST API with pagination, /download and /upload link endpoints. Full list/get/mkdir/move/copy/rename/remove + PUT upload via Yandex's href-based upload._
+- [x] Terabox - _Ported from Go v4 driver: cookie + jsToken authentication (jsToken parsed from /page HTML via `function%20fn%28a%29%7Bwindow.jsToken` regex), auto-renewal on errno 4000023/450016, automatic base_url switch on errno -6 redirect (Url-Domain-Prefix header), RC4-based sign() function for /api/download, /api/filemanager CRUD with async=0&filelist=...&ondup=newcopy body format. Full list/get/mkdir/move/copy/rename/remove + simplified single-chunk put()._
+- [x] UC网盘 (UC Drive) - _Ported from Go v4 driver (quark_uc variant with UC config): pc-api.uc.cn API endpoint, UCBrowser pr header, drive.uc.cn referer. Cookie-based auth with \_\_puus auto-refresh. Same /file/sort listing + /file/download link pattern as Quark. Full list/get/mkdir/move/copy/rename/remove implemented; put() throws._
+- [x] 迅雷网盘 (Xunlei Drive) - _Already implemented as ThunderDriver + ThunderExpertDriver; ThunderBrowser and ThunderX variants can be configured via ThunderExpertDriver with custom algorithms/client_id (no separate driver needed)._
 
 ## Cloudflare Workers 兼容性
 
