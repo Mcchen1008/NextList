@@ -5,6 +5,7 @@ import { getDriver } from "../internal/op/storage"
 import { randomString } from "../pkg/crypto"
 import { safeErrorMessage } from "../pkg/errs"
 import { JWT_SECRET } from "./middlewares"
+import { portedDriverConfigs } from "../drivers/registry"
 
 export const adminRouter = new Hono()
 
@@ -202,6 +203,45 @@ adminRouter.get("/driver/names", (c) => {
       "Lanzou",
       "WebDav",
       "NeteaseMusic",
+      // Previous batch (28e3246)
+      "PikPak",
+      "Seafile",
+      "USS",
+      "Teambition",
+      "MediaTrack",
+      "YandexDisk",
+      "Terabox",
+      "UC",
+      "139Cloud",
+      "MediaFire",
+      // This batch: ported from OpenList HTTP drivers
+      "AListV3",
+      "OpenListShare",
+      "Misskey",
+      "Emby",
+      "WoPan",
+      "KodBox",
+      "CnbReleases",
+      "AliyundriveShare",
+      "GitHubReleases",
+      "GooglePhoto",
+      "Dropbox",
+      "FebBox",
+      "PikPakShare",
+      "LenovoNasShare",
+      "CloudflareImgBed",
+      "AliDoc",
+      "Cloudreve",
+      "CloudreveV4",
+      "ChaoXingGroupDrive",
+      "BunnyStorage",
+      "OnedriveSharelink",
+      "Teldrive",
+      "123PanShare",
+      "Degoo",
+      "WPS",
+      "GuangYaPan",
+      "Doubao",
     ],
   })
 })
@@ -1312,6 +1352,7 @@ const driverConfigs: Record<string, any> = {
       default_root: "/",
     },
   },
+  ...portedDriverConfigs,
 }
 
 adminRouter.get("/driver/list", (c) => {

@@ -29,6 +29,33 @@ import { TeraboxDriver } from "../../drivers/terabox/driver"
 import { UcDriver } from "../../drivers/uc/driver"
 import { Cloud139Driver } from "../../drivers/139/driver"
 import { MediaFireDriver } from "../../drivers/mediafire/driver"
+import { AListV3Driver } from "../../drivers/alist_v3/driver"
+import { OpenListShareDriver } from "../../drivers/openlist_share/driver"
+import { MisskeyDriver } from "../../drivers/misskey/driver"
+import { EmbyDriver } from "../../drivers/emby/driver"
+import { WopanDriver } from "../../drivers/wopan/driver"
+import { KodBoxDriver } from "../../drivers/kodbox/driver"
+import { CnbReleasesDriver } from "../../drivers/cnb_releases/driver"
+import { AliyundriveShareDriver } from "../../drivers/aliyundrive_share/driver"
+import { GithubReleasesDriver } from "../../drivers/github_releases/driver"
+import { GooglePhotoDriver } from "../../drivers/google_photo/driver"
+import { DropboxDriver } from "../../drivers/dropbox/driver"
+import { FebBoxDriver } from "../../drivers/febbox/driver"
+import { PikPakShareDriver } from "../../drivers/pikpak_share/driver"
+import { LenovoNasShareDriver } from "../../drivers/lenovonas_share/driver"
+import { CloudflareImgBedDriver } from "../../drivers/cloudflare_imgbed/driver"
+import { AliDocDriver } from "../../drivers/alidoc/driver"
+import { CloudreveDriver } from "../../drivers/cloudreve/driver"
+import { CloudreveV4Driver } from "../../drivers/cloudreve_v4/driver"
+import { ChaoxingDriver } from "../../drivers/chaoxing/driver"
+import { BunnyStorageDriver } from "../../drivers/bunny_storage/driver"
+import { OnedriveSharelinkDriver } from "../../drivers/onedrive_sharelink/driver"
+import { TeldriveDriver } from "../../drivers/teldrive/driver"
+import { Pan123ShareDriver } from "../../drivers/123_share/driver"
+import { DegooDriver } from "../../drivers/degoo/driver"
+import { WpsDriver } from "../../drivers/wps/driver"
+import { GuangYaPanDriver } from "../../drivers/guangyapan/driver"
+import { DoubaoDriver } from "../../drivers/doubao/driver"
 
 // LocalDriver is not available in Cloudflare Workers (no fs module).
 // When running in Node.js container mode, import dynamically on first use.
@@ -42,6 +69,102 @@ async function getLocalDriver(): Promise<StorageDriver> {
 }
 
 const driverCache = new Map<string, StorageDriver>()
+
+/** Persist a set of addition fields back into the storage config in the DB. */
+async function persistAdditionFields(
+  storageConfig: any,
+  fields: Record<string, any>,
+): Promise<void> {
+  const storageId = storageConfig?.id
+  if (!storageId) return
+  try {
+    const db = await getDb()
+    const st = (db.storages || []).find(
+      (s: any) => String(s.id) === String(storageId),
+    )
+    if (!st) return
+    const stAddition =
+      typeof st.addition === "string"
+        ? JSON.parse(st.addition || "{}")
+        : st.addition || {}
+    for (const [key, value] of Object.entries(fields)) {
+      if (value !== undefined && value !== null) {
+        stAddition[key] = value
+      }
+    }
+    st.addition = JSON.stringify(stAddition)
+    if (String(storageConfig.id) === String(storageId)) {
+      storageConfig.addition = st.addition
+    }
+    await saveDb(db)
+  } catch (e) {
+    console.warn("[storage] failed to persist driver state:", e)
+  }
+}
+
+/** Persister for drivers whose callback is (accessToken, refreshToken). */
+function makeTokenPersister(
+  storageConfig: any,
+): (accessToken: string, refreshToken: string) => Promise<void> {
+  return async (accessToken: string, refreshToken: string) => {
+    await persistAdditionFields(storageConfig, {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    })
+  }
+}
+
+/** Persister for drivers whose callback receives a token object. */
+function makeTokenObjectPersister(
+  storageConfig: any,
+  keys?: string[],
+): (tokens: Record<string, any>) => void | Promise<void> {
+  return async (tokens: Record<string, any>) => {
+    const fields: Record<string, any> = {}
+    for (const key of keys || Object.keys(tokens || {})) {
+      if (tokens && tokens[key] !== undefined) fields[key] = tokens[key]
+    }
+    await persistAdditionFields(storageConfig, fields)
+  }
+}
+
+/** Persister for drivers that refresh a cookie (cloudreve / chaoxing). */
+function makeCookiePersister(
+  storageConfig: any,
+): (cookie: string) => void | Promise<void> {
+  return async (cookie: string) => {
+    await persistAdditionFields(storageConfig, { cookie })
+  }
+}
+
+/** Persister for emby (api_key + user_id after username login). */
+function makeCredentialsPersister(
+  storageConfig: any,
+): (apiKey: string, userId: string) => void | Promise<void> {
+  return async (apiKey: string, userId: string) => {
+    await persistAdditionFields(storageConfig, {
+      api_key: apiKey,
+      user_id: userId,
+    })
+  }
+}
+
+/** Persister for degoo (tokens + auto-detected root folder id). */
+function makeDegooStatePersister(
+  storageConfig: any,
+): (state: {
+  access_token: string
+  refresh_token: string
+  root_folder_id?: string
+}) => void {
+  return (state) => {
+    void persistAdditionFields(storageConfig, {
+      access_token: state.access_token,
+      refresh_token: state.refresh_token,
+      root_folder_id: state.root_folder_id,
+    })
+  }
+}
 
 function parseAddition(storageConfig?: any): any {
   const additionStr = storageConfig?.addition
@@ -114,20 +237,16 @@ export async function getDriver(
   } else if (
     normDriver === "aliyundrive" ||
     normDriver === "aliyundriveopen" ||
-    normDriver === "aliyundriveshare" ||
     normDriver === "aliyun"
   ) {
     // 统一只保留阿里云盘 OAuth2 (AliyundriveOpen)
+    // Note: "AliyundriveShare" now maps to the dedicated share driver below.
     driver = new AliyundriveOpen(parseAddition(storageConfig))
     await driver.init?.()
   } else if (normDriver === "googledrive") {
     driver = new GoogleDrive(parseAddition(storageConfig))
     await driver.init?.()
-  } else if (
-    normDriver === "quark" ||
-    normDriver === "quarkuc" ||
-    normDriver === "uc"
-  ) {
+  } else if (normDriver === "quark" || normDriver === "quarkuc") {
     driver = new QuarkDriver(parseAddition(storageConfig))
     await driver.init?.()
   } else if (normDriver === "123pan" || normDriver === "123") {
@@ -370,6 +489,161 @@ export async function getDriver(
   } else if (normDriver === "mediafire") {
     const addition = parseAddition(storageConfig)
     driver = new MediaFireDriver(addition)
+    await driver.init?.()
+  } else if (
+    normDriver === "alistv3" ||
+    normDriver === "alist" ||
+    normDriver === "alistv2"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new AListV3Driver(addition)
+    await driver.init?.()
+  } else if (normDriver === "openlistshare" || normDriver === "alistshare") {
+    const addition = parseAddition(storageConfig)
+    driver = new OpenListShareDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "misskey") {
+    const addition = parseAddition(storageConfig)
+    driver = new MisskeyDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "emby") {
+    const addition = parseAddition(storageConfig)
+    driver = new EmbyDriver(addition, makeCredentialsPersister(storageConfig))
+    await driver.init?.()
+  } else if (
+    normDriver === "wopan" ||
+    normDriver === "unicom" ||
+    normDriver === "wopanunicom"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new WopanDriver(addition, makeTokenPersister(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "kodbox") {
+    const addition = parseAddition(storageConfig)
+    driver = new KodBoxDriver(addition)
+    await driver.init?.()
+  } else if (
+    normDriver === "cnbreleases" ||
+    normDriver === "cnb" ||
+    normDriver === "cnbrelease"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new CnbReleasesDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "aliyundriveshare") {
+    const addition = parseAddition(storageConfig)
+    driver = new AliyundriveShareDriver(
+      addition,
+      makeTokenPersister(storageConfig),
+    )
+    await driver.init?.()
+  } else if (
+    normDriver === "githubreleases" ||
+    normDriver === "githubrelease"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new GithubReleasesDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "googlephoto" || normDriver === "googlephotos") {
+    const addition = parseAddition(storageConfig)
+    driver = new GooglePhotoDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "dropbox") {
+    const addition = parseAddition(storageConfig)
+    driver = new DropboxDriver(addition, makeTokenPersister(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "febbox") {
+    const addition = parseAddition(storageConfig)
+    driver = new FebBoxDriver(addition, makeTokenObjectPersister(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "pikpakshare" || normDriver === "pikpaksharing") {
+    const addition = parseAddition(storageConfig)
+    driver = new PikPakShareDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "lenovonasshare" || normDriver === "lenovonas") {
+    const addition = parseAddition(storageConfig)
+    driver = new LenovoNasShareDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "cloudflareimgbed" || normDriver === "cfimgbed") {
+    const addition = parseAddition(storageConfig)
+    driver = new CloudflareImgBedDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "alidoc" || normDriver === "dingtalkdoc") {
+    const addition = parseAddition(storageConfig)
+    driver = new AliDocDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "cloudreve" || normDriver === "cloudrevev3") {
+    const addition = parseAddition(storageConfig)
+    driver = new CloudreveDriver(addition, makeCookiePersister(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "cloudrevev4" || normDriver === "cloudrevepro") {
+    const addition = parseAddition(storageConfig)
+    driver = new CloudreveV4Driver(
+      addition,
+      makeTokenObjectPersister(storageConfig, [
+        "access_token",
+        "refresh_token",
+        "access_expires",
+        "refresh_expires",
+      ]),
+    )
+    await driver.init?.()
+  } else if (
+    normDriver === "chaoxing" ||
+    normDriver === "chaoxinggroupdrive" ||
+    normDriver === "xuexitong"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new ChaoxingDriver(addition, makeCookiePersister(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "bunnystorage" || normDriver === "bunny") {
+    const addition = parseAddition(storageConfig)
+    const mountPath =
+      "/" +
+      String(storageConfig?.mount_path || "")
+        .split("/")
+        .filter(Boolean)
+        .join("/")
+    driver = new BunnyStorageDriver(addition, mountPath)
+    await driver.init?.()
+  } else if (
+    normDriver === "onedrivesharelink" ||
+    normDriver === "onedriveshare"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new OnedriveSharelinkDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "teldrive") {
+    const addition = parseAddition(storageConfig)
+    driver = new TeldriveDriver(addition)
+    await driver.init?.()
+  } else if (
+    normDriver === "123share" ||
+    normDriver === "123panshare" ||
+    normDriver === "123panlink"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new Pan123ShareDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "degoo") {
+    const addition = parseAddition(storageConfig)
+    driver = new DegooDriver(addition, makeDegooStatePersister(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "wps" || normDriver === "kdocs") {
+    const addition = parseAddition(storageConfig)
+    driver = new WpsDriver(addition)
+    await driver.init?.()
+  } else if (
+    normDriver === "guangyapan" ||
+    normDriver === "gsp" ||
+    normDriver === "lightspeedpan"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new GuangYaPanDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "doubao" || normDriver === "doubaoDrive") {
+    const addition = parseAddition(storageConfig)
+    driver = new DoubaoDriver(addition)
     await driver.init?.()
   } else {
     throw new Error(

@@ -57,6 +57,38 @@
 - [x] Terabox - _Ported from Go v4 driver: cookie + jsToken authentication (jsToken parsed from /page HTML via `function%20fn%28a%29%7Bwindow.jsToken` regex), auto-renewal on errno 4000023/450016, automatic base_url switch on errno -6 redirect (Url-Domain-Prefix header), RC4-based sign() function for /api/download, /api/filemanager CRUD with async=0&filelist=...&ondup=newcopy body format. Full list/get/mkdir/move/copy/rename/remove + simplified single-chunk put()._
 - [x] UC网盘 (UC Drive) - _Ported from Go v4 driver (quark_uc variant with UC config): pc-api.uc.cn API endpoint, UCBrowser pr header, drive.uc.cn referer. Cookie-based auth with \_\_puus auto-refresh. Same /file/sort listing + /file/download link pattern as Quark. Full list/get/mkdir/move/copy/rename/remove implemented; put() throws._
 - [x] 迅雷网盘 (Xunlei Drive) - _Already implemented as ThunderDriver + ThunderExpertDriver; ThunderBrowser and ThunderX variants can be configured via ThunderExpertDriver with custom algorithms/client_id (no separate driver needed)._
+- [x] **批量移植 OpenList HTTP 驱动 (27 个新驱动)** - _全部纯 fetch + Web Crypto 实现，保持 Cloudflare Workers 兼容:_
+  - AListV3 (兼容 OpenList 服务器，含 put 上传 + 401 重登录)
+  - OpenListShare (分享链接只读浏览, /@s/ + /sd/ 直链)
+  - Misskey (drive API 全读写 + multipart 上传)
+  - Emby (api_key/用户名密码双模式, 剧集显示名逻辑, 只读)
+  - WoPan 联通云盘 (wire 协议 1:1: md5 签名 + AES-128-CBC, token 自动刷新)
+  - KodBox (session 鉴权, 全读写 + multipart put)
+  - CnbReleases (CNB/GitCode 仓库 Releases, 只读)
+  - AliyundriveShare (refresh_token 轮换 + share_token 双层鉴权 + 限流)
+  - GitHubReleases (latest/all-versions 双模式 + gh_proxy 直链加速)
+  - GooglePhoto (相册/全部照片虚拟目录, mediaItems:search)
+  - Dropbox (OAuth 双模式 + 完整上传会话 20MB 分片)
+  - FebBox (OAuth client_credentials/refresh_token, error_code -10001 重试)
+  - PikPakShare (captcha 签名链 + pass_code, 三平台)
+  - LenovoNasShare (stoken 换取 + dtoken 下载直链)
+  - CloudflareImgBed (三种上传管线: standard/分片/HuggingFace LFS + 虚拟目录)
+  - AliDoc 阿里云文档 (钉钉 cookie 鉴权 + 预签名 OSS 直链)
+  - Cloudreve v3 (session cookie, 全读写)
+  - Cloudreve v4 (token 鉴权, 全读写)
+  - ChaoXingGroupDrive 超星云盘 (cookie, 全读写)
+  - BunnyStorage (AccessKey 头鉴权, 路径型)
+  - OnedriveSharelink (分享链接解析, 免账号只读)
+  - Teldrive (JWT 鉴权; Telegram 分片上传 put 抛错)
+  - 123PanShare (CRC32 签名 + 700ms 限速, 只读)
+  - Degoo (GraphQL + 登录链; S3 分片上传 put 抛错)
+  - WPS (cookie 鉴权, Personal/Business 双端 + 完整预签名上传)
+  - GuangYaPan 光速盘 (token/短信双模式 + 任务轮询)
+  - Doubao 豆包网盘 (cookie, 三分支直链: download/play/file_url)
+- [x] 上一批 13 驱动补齐 admin 表单配置 (pikpak/seafile/uss/teambition/mediatrack/yandex_disk/terabox/uc/139/mediafire)
+- [x] 中央驱动注册表 src/backend/drivers/registry.ts (37 个配置聚合)
+- [x] storage.ts 统一注册 + token/cookie 持久化回调 (persistAdditionFields 辅助)
+- [x] 修复: UC 驱动名被 Quark 分支抢占的注册冲突; AliyundriveShare 占位映射指向新驱动
 
 ## Cloudflare Workers 兼容性
 
