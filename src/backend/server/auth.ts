@@ -64,6 +64,29 @@ export async function hashPassword(plainPassword: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
 }
 
+/**
+ * Validate a plain password against a stored user password.
+ * Mirrors the /auth/login logic: accepts plain-text stored passwords,
+ * sha256-hashed passwords, and the bootstrap admin/admin default.
+ * Shared by the login endpoint and the WebDAV Basic auth.
+ */
+export async function validateUserPassword(
+  user: any,
+  rawPassword: string,
+): Promise<boolean> {
+  const userPass = user?.password || ""
+  const hashedPassword = await hashPassword(rawPassword)
+  const defaultAdminHash = await hashPassword("admin")
+  return (
+    userPass === rawPassword ||
+    userPass === hashedPassword ||
+    (userPass === "" &&
+      (rawPassword === "admin" || hashedPassword === defaultAdminHash)) ||
+    (userPass === "admin" &&
+      (rawPassword === "admin" || hashedPassword === defaultAdminHash))
+  )
+}
+
 // Ensure admin user exists in DB KV space with a default password if unset
 async function getOrInitUsers(envCtx: any) {
   const db = await getDb(envCtx)

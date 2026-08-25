@@ -5,14 +5,16 @@
 // Hono 兜底只能返回 404 —— 这就是「访问 /@manage 404 后整站打不开」的原因。
 // 此中间件在边缘层先行拦截：浏览器导航请求（Accept: text/html）且不属于
 // 后端路径时，透明改写为 /index.html，由静态 CDN 直接返回页面壳；
-// /api、/d、/p、/sd、/health 等后端路径照常放行到云函数。
+// /api、/d、/p、/sd、/dav、/health 等后端路径照常放行到云函数
+// （/dav 放行时还必须跳过 HTML 回退，否则 WebDAV 客户端的 PROPFIND
+//  会被改写为 index.html 导致挂载失败）。
 export function middleware(context) {
   const { request } = context
   const { pathname } = new URL(request.url)
   const accept = request.headers.get("accept") || ""
 
   const isBackend =
-    pathname === "/health" || /^\/(api|d|p|sd)(\/|$)/.test(pathname)
+    pathname === "/health" || /^\/(api|d|p|sd|dav)(\/|$)/.test(pathname)
 
   if (
     !isBackend &&

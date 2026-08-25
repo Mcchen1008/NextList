@@ -12,7 +12,7 @@
 - [x] 黑暗模式 (Dark mode)
 - [x] 国际化 (i18n)
 - [x] 受保护的路由（密码保护和认证） (Protected routes) - _Implemented for admin login_
-- [ ] WebDAV (WebDAV) - _Not supported in JS backend yet_
+- [x] WebDAV (WebDAV) - _Full RFC 4918 server at `/dav`: Basic/Bearer auth, PROPFIND (Depth 0/1), PROPPATCH, MKCOL, GET/HEAD (Range, proxy + local stream), PUT, DELETE, MOVE/COPY (Destination/Overwrite), LOCK/UNLOCK (class 2 fake locks); webdav_read/webdav_manage permission bits + base_path jailing; 42 e2e tests (`npx tsx scripts/test-webdav.mts`)_
 - [x] Docker 部署 (Docker deploy) - _Supported via container_
 - [x] Cloudflare Workers / Vercel 代理 - _Supported via entrypoints_
 - [x] 文件/文件夹打包下载 (File/folder archive download) - _Implemented via browser ZIP stream_

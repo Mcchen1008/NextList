@@ -296,6 +296,7 @@ pnpm build
 npx tsx scripts/test-workers-env.mts   # Workers 环境兼容性回归
 npx tsx scripts/test-share.mts         # 分享流程测试
 npx tsx scripts/test-backup-flow.mts   # 备份 / 恢复流程测试
+npx tsx scripts/test-webdav.mts        # WebDAV 服务端全流程测试（认证 / PROPFIND / 上传下载 / MOVE / COPY / 权限）
 ```
 
 > [!NOTE]
@@ -319,7 +320,7 @@ Node 容器模式持久化到 `public_data/db.json`；Cloudflare Workers 模式�
 
 **Q：支持 WebDAV 吗？**
 
-支持将远程 WebDAV 服务器（Nextcloud、ownCloud、Synology 等）作为存储驱动挂载；对外提供 WebDAV 服务端协议暂未实现。
+双向支持：既可以把远程 WebDAV 服务器（Nextcloud、ownCloud、Synology 等）作为存储驱动挂载进来，也对外提供完整的 WebDAV 服务端（`/dav` 端点，RFC 4918 Class 1/2），可直接被 Windows 资源管理器、macOS Finder、rclone 等客户端挂载。详见 [WebDAV 使用指南](docs/webdav.md)。
 
 **Q：`npm run start` 为什么不能直接启动服务？**
 
@@ -334,6 +335,7 @@ Node 容器模式持久化到 `public_data/db.json`；Cloudflare Workers 模式�
 ## 📚 文档与资源
 
 - [Cloudflare Workers 部署指南](docs/deploy-cloudflare-workers.md)
+- [WebDAV 使用指南](docs/webdav.md)（Windows / macOS / rclone 挂载配置）
 - [OpenList 官方文档](https://doc.oplist.org/)（配置 / 驱动 / FAQ，与本项目高度兼容）
 
 ---

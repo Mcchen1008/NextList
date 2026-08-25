@@ -1,6 +1,7 @@
 import { Hono } from "hono"
 import { setupRouter } from "./server/router"
 import { rawRouter } from "./server/raw"
+import { webdavRouter } from "./server/webdav"
 import { setEnvCtx } from "./internal/model/db"
 
 const app = new Hono()
@@ -36,6 +37,10 @@ app.route("/api", api)
 app.route("/d", rawRouter)
 app.route("/sd", rawRouter)
 app.route("/p", rawRouter)
+
+// WebDAV server (RFC 4918) — mounted before the static/SPA catch-all so
+// PROPFIND/PUT/MOVE/... never fall through to index.html
+app.route("/dav", webdavRouter)
 
 // Catch-all handler for static assets & SPA frontend serving via Cloudflare Assets
 app.all("*", async (c) => {

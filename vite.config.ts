@@ -21,7 +21,9 @@ export default defineConfig({
     devServer({
       entry: "src/backend/index.ts",
       exclude: [
-        /^\/(?!api\/|d\/|sd\/|p\/).*/,
+        // WebDAV (/dav) and download paths are handled by the backend;
+        // everything else falls through to the Vite frontend
+        /^\/(?!api\/|d\/|sd\/|p\/|dav(?:\/|$)).*/,
         /^\/assets\/.*/,
         /^\/favicon.ico$/,
         /^\/manifest.json$/,
@@ -73,5 +75,10 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 3000,
+    // 关闭 Vite 自带 CORS：其预检中间件会拦截所有 OPTIONS 请求并返回
+    // 204（无 DAV 头），导致 WebDAV 客户端在开发模式下无法探测 /dav。
+    // /api 已由后端 Hono cors() 中间件处理；前端同源无需 CORS；
+    // WebDAV 客户端（Windows/macOS/rclone）不走 CORS 机制。
+    cors: false,
   },
 })

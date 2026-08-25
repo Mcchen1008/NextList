@@ -886,22 +886,26 @@ export async function renameItem(
 }
 
 export async function removeItems(dir: string, names: string[]): Promise<void> {
-  for (const name of names) {
-    const itemVirtual = `${dir}/${name}`
-    const resolved = await resolvePath(itemVirtual)
-    if (resolved.isVirtual) {
-      throw new Error("failed get storage: storage not found")
-    }
-    const driver = await getDriver(resolved.storage!.driver, resolved.storage)
-    try {
-      await driver.remove(itemVirtual, resolved.physical!, [name])
-    } finally {
-      await flushPendingDriverState(
-        resolved.storage!.driver,
-        resolved.storage,
-        driver,
-      )
-    }
+  // Drivers expect the physical path of the DIRECTORY containing `names`
+  // (they join `physical + name` themselves), so resolve `dir` — not each
+  // item. Resolving the item would double-append the name and silently
+  // no-op with force:true deletes.
+  const dirResolved = await resolvePath(dir)
+  if (dirResolved.isVirtual) {
+    throw new Error("failed get storage: storage not found")
+  }
+  const driver = await getDriver(
+    dirResolved.storage!.driver,
+    dirResolved.storage,
+  )
+  try {
+    await driver.remove(dir, dirResolved.physical!, names)
+  } finally {
+    await flushPendingDriverState(
+      dirResolved.storage!.driver,
+      dirResolved.storage,
+      driver,
+    )
   }
 }
 
@@ -910,34 +914,32 @@ export async function moveItems(
   dstDir: string,
   names: string[],
 ): Promise<void> {
-  for (const name of names) {
-    const srcVirtual = `${srcDir}/${name}`
-    const dstVirtual = `${dstDir}/${name}`
-    const srcResolved = await resolvePath(srcVirtual)
-    const dstResolved = await resolvePath(dstVirtual)
-    if (srcResolved.isVirtual || dstResolved.isVirtual) {
-      throw new Error("failed get storage: storage not found")
-    }
+  // Resolve the source/destination DIRECTORIES: drivers join
+  // `physical + name` internally, so passing item paths would double-append.
+  const srcDirResolved = await resolvePath(srcDir)
+  const dstDirResolved = await resolvePath(dstDir)
+  if (srcDirResolved.isVirtual || dstDirResolved.isVirtual) {
+    throw new Error("failed get storage: storage not found")
+  }
 
-    const driver = await getDriver(
-      srcResolved.storage!.driver,
-      srcResolved.storage,
+  const driver = await getDriver(
+    srcDirResolved.storage!.driver,
+    srcDirResolved.storage,
+  )
+  try {
+    await driver.move(
+      srcDir,
+      dstDir,
+      names,
+      srcDirResolved.physical!,
+      dstDirResolved.physical!,
     )
-    try {
-      await driver.move(
-        srcDir,
-        dstDir,
-        [name],
-        srcResolved.physical!,
-        dstResolved.physical!,
-      )
-    } finally {
-      await flushPendingDriverState(
-        srcResolved.storage!.driver,
-        srcResolved.storage,
-        driver,
-      )
-    }
+  } finally {
+    await flushPendingDriverState(
+      srcDirResolved.storage!.driver,
+      srcDirResolved.storage,
+      driver,
+    )
   }
 }
 
@@ -946,34 +948,31 @@ export async function copyItems(
   dstDir: string,
   names: string[],
 ): Promise<void> {
-  for (const name of names) {
-    const srcVirtual = `${srcDir}/${name}`
-    const dstVirtual = `${dstDir}/${name}`
-    const srcResolved = await resolvePath(srcVirtual)
-    const dstResolved = await resolvePath(dstVirtual)
-    if (srcResolved.isVirtual || dstResolved.isVirtual) {
-      throw new Error("failed get storage: storage not found")
-    }
+  // Resolve the source/destination DIRECTORIES (see moveItems).
+  const srcDirResolved = await resolvePath(srcDir)
+  const dstDirResolved = await resolvePath(dstDir)
+  if (srcDirResolved.isVirtual || dstDirResolved.isVirtual) {
+    throw new Error("failed get storage: storage not found")
+  }
 
-    const driver = await getDriver(
-      srcResolved.storage!.driver,
-      srcResolved.storage,
+  const driver = await getDriver(
+    srcDirResolved.storage!.driver,
+    srcDirResolved.storage,
+  )
+  try {
+    await driver.copy(
+      srcDir,
+      dstDir,
+      names,
+      srcDirResolved.physical!,
+      dstDirResolved.physical!,
     )
-    try {
-      await driver.copy(
-        srcDir,
-        dstDir,
-        [name],
-        srcResolved.physical!,
-        dstResolved.physical!,
-      )
-    } finally {
-      await flushPendingDriverState(
-        srcResolved.storage!.driver,
-        srcResolved.storage,
-        driver,
-      )
-    }
+  } finally {
+    await flushPendingDriverState(
+      srcDirResolved.storage!.driver,
+      srcDirResolved.storage,
+      driver,
+    )
   }
 }
 

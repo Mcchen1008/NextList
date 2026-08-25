@@ -40,6 +40,7 @@
     "prepare": "node -e \"if (require('fs').existsSync('.git')) { try { require('child_process').execSync('husky'); } catch(e) {} }\"",
     "lint": "tsc -p tsconfig.json --noEmit",
     "test:189": "tsx --test src/backend/drivers/189/util.test.ts",
+    "test:webdav": "tsx scripts/test-webdav.mts",
     "format": "prettier --ignore-path .gitignore -w \"src/**/*.{js,ts,json,css,tsx,jsx}\""
   },
   "license": "AGPL-3.0",
