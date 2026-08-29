@@ -24,7 +24,7 @@ import {
 import { createMemo, createSignal, For, Match, Show, Switch } from "solid-js"
 import { useFetch, useManageTitle, useRouter, useT } from "~/hooks"
 import { handleResp, notify, r } from "~/utils"
-import { EmptyResp, PageResp, Resp, Storage } from "~/types"
+import { EmptyResp, PageResp, PEmptyResp, Resp, Storage } from "~/types"
 import { StorageGridItem, StorageListItem } from "./Storage"
 import { createStorageSignal } from "@solid-primitives/storage"
 
@@ -40,6 +40,16 @@ const Storages = () => {
     const resp = await getStorages()
     handleResp(resp, (data) => setStorages(data.content))
   }
+  const [checkAllLoading, checkAll] = useFetch(
+    (): PEmptyResp => r.post("/admin/storage/check_all"),
+  )
+  const runCheckAll = async (silent = false) => {
+    const resp = await checkAll()
+    handleResp(resp, () => {
+      if (!silent) notify.success(t("storages.other.check_success"))
+      refresh()
+    })
+  }
   const [drivers, setDrivers] = createSignal<string[]>([])
   const [selectedDrivers, setSelectedDrivers] = createSignal<string[]>([])
   const getDrivers = async () => {
@@ -48,6 +58,9 @@ const Storages = () => {
   }
   getDrivers()
   refresh()
+  // Probe every storage once on page entry so statuses reflect reality
+  // (silent: errors are shown per-storage in the list, not as a toast).
+  void runCheckAll(true)
   const loadAll = async () => {
     const resp: EmptyResp = await r.post("/admin/storage/load_all")
     handleResp(resp, () => {
@@ -97,6 +110,9 @@ const Storages = () => {
           onClick={loadAll}
         >
           {t("storages.other.load_all")}
+        </Button>
+        <Button loading={checkAllLoading()} onClick={() => runCheckAll()}>
+          {t("storages.other.check_all")}
         </Button>
         <Show when={drivers().length > 0}>
           <Select

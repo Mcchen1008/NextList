@@ -31,6 +31,10 @@ export interface Storage {
   order: number
   driver: string
   status: string
+  /** Error message when status === "exception"; empty otherwise. */
+  status_message?: string
+  /** ISO timestamp of the last health check; empty = never probed. */
+  checked_at?: string
   addition: string
   remark: string
   modified: string

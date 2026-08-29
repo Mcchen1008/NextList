@@ -53,12 +53,15 @@
   "table_fields": {
     "status": {
       "work": "Working",
+      "exception": "Error",
       "disabled": "Disabled"
     }
   },
   "other": {
     "start_load_success": "Start loading",
     "load_all": "Reload All",
+    "check_all": "Check All",
+    "check_success": "Health check completed",
     "filter_by_driver": "Filter by driver",
     "layout": "Layout",
     "table_layout": "Table layout"

@@ -14,6 +14,7 @@
     "order-tips": "用于存储在前端列表的显示顺序",
     "usage": "容量用量",
     "status": "状态",
+    "check": "检测",
     "remark": "备注",
     "cache_expiration": "缓存生存时长",
     "cache_expiration-tips": "该存储下缓存文件的生存时长 (单位：分钟)",
@@ -53,12 +54,15 @@
   "table_fields": {
     "status": {
       "work": "正常运作",
+      "exception": "异常",
       "disabled": "已禁用"
     }
   },
   "other": {
     "start_load_success": "开始重新加载",
     "load_all": "重新加载全部",
+    "check_all": "检测全部",
+    "check_success": "检测完成",
     "filter_by_driver": "按驱动类型筛选",
     "layout": "布局",
     "table_layout": "表格布局"

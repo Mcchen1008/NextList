@@ -7,8 +7,25 @@ import { safeErrorMessage } from "../pkg/errs"
 import { JWT_SECRET } from "./middlewares"
 import { portedDriverConfigs } from "../drivers/registry"
 import { registerCompatRoutes } from "./compat"
+import {
+  checkAllStorages,
+  checkStorageById,
+  StorageHealthResult,
+} from "../internal/op/health"
 
 export const adminRouter = new Hono()
+
+/**
+ * Derive the status shown in the admin UI from the persisted row.
+ * Disabled always wins (the fs layer refuses disabled mounts anyway);
+ * otherwise the last health-check verdict is used, defaulting to "work"
+ * for rows that have never been probed (legacy/imported data).
+ */
+function deriveStorageStatus(s: any): string {
+  if (s.disabled) return "disabled"
+  if (s.status === "exception") return "exception"
+  return "work"
+}
 
 adminRouter.use("*", async (c, next) => {
   const authHeader = c.req.header("Authorization")
@@ -31,10 +48,16 @@ adminRouter.use("*", async (c, next) => {
 
 adminRouter.get("/storage/list", async (c) => {
   const db = await getDb(c.env)
+  const content = (db.storages || []).map((s: any) => ({
+    ...s,
+    status: deriveStorageStatus(s),
+    status_message: s.status_message || "",
+    checked_at: s.checked_at || "",
+  }))
   return c.json({
     code: 200,
     message: "success",
-    data: { content: db.storages, total: db.storages.length },
+    data: { content, total: content.length },
   })
 })
 
@@ -75,12 +98,26 @@ adminRouter.post("/storage/create", async (c) => {
       ? Math.max(...db.storages.map((s: any) => s.id)) + 1
       : 1,
     status: "work",
+    status_message: "",
+    checked_at: "",
     modified: new Date().toISOString(),
   }
   db.storages.push(newStorage)
   await saveDb(db, c.env)
+  // Probe the new storage immediately so the UI reflects reality instead of
+  // a hardcoded "work". The storage is kept either way (import flows rely
+  // on that); a broken config shows up as "exception" + error message.
+  const probe = await checkStorageById(newStorage.id, c.env)
+  if (probe) applyHealthResultInline(newStorage, probe)
   return c.json({ code: 200, message: "success", data: newStorage })
 })
+
+/** Copy a probe result onto a (detached copy of a) storage row. */
+function applyHealthResultInline(target: any, r: StorageHealthResult) {
+  target.status = r.status
+  target.status_message = r.message || ""
+  target.checked_at = r.checked_at
+}
 
 adminRouter.post("/storage/update", async (c) => {
   const body = await c.req.json().catch(() => ({}))
@@ -105,6 +142,10 @@ adminRouter.post("/storage/update", async (c) => {
 
   const idx = db.storages.findIndex((s: any) => s.id === body.id)
   if (idx !== -1) {
+    // Status fields are server-owned — ignore whatever the client sent.
+    delete body.status
+    delete body.status_message
+    delete body.checked_at
     db.storages[idx] = {
       ...db.storages[idx],
       ...body,
@@ -112,6 +153,9 @@ adminRouter.post("/storage/update", async (c) => {
       modified: new Date().toISOString(),
     }
     await saveDb(db, c.env)
+    // Re-probe after edits (fixed credentials should clear "exception",
+    // broken ones should surface immediately).
+    await checkStorageById(body.id, c.env)
   }
   return c.json({ code: 200, message: "success", data: null })
 })
@@ -131,6 +175,9 @@ adminRouter.post("/storage/enable", async (c) => {
   if (s) {
     s.disabled = false
     await saveDb(db, c.env)
+    // Probe right away: the row just left "disabled" and must not flash a
+    // stale "work"/"exception" verdict from before it was disabled.
+    await checkStorageById(id, c.env)
   }
   return c.json({ code: 200, message: "success", data: null })
 })
@@ -141,9 +188,27 @@ adminRouter.post("/storage/disable", async (c) => {
   const s = db.storages.find((s: any) => s.id === id)
   if (s) {
     s.disabled = true
+    s.status = "disabled"
+    s.status_message = ""
     await saveDb(db, c.env)
   }
   return c.json({ code: 200, message: "success", data: null })
+})
+
+// POST /api/admin/storage/check?id=N — probe one storage and persist status.
+adminRouter.post("/storage/check", async (c) => {
+  const id = parseInt(c.req.query("id") || "0", 10)
+  const result = await checkStorageById(id, c.env)
+  if (!result) {
+    return c.json({ code: 404, message: "storage not found", data: null })
+  }
+  return c.json({ code: 200, message: "success", data: result })
+})
+
+// POST /api/admin/storage/check_all — probe every storage sequentially.
+adminRouter.post("/storage/check_all", async (c) => {
+  const results = await checkAllStorages(c.env)
+  return c.json({ code: 200, message: "success", data: results })
 })
 
 // 预热/加载所有启用的存储驱动（逐个容错，坏配置不影响其他存储）。

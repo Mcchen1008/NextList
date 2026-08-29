@@ -12,7 +12,7 @@ import {
   ProgressIndicator,
   ProgressLabel,
 } from "@hope-ui/solid"
-import { Show } from "solid-js"
+import { Show, Switch, Match } from "solid-js"
 import { useFetch, useRouter, useT } from "~/hooks"
 import { getMainColor } from "~/store"
 import { MountDetails, PEmptyResp, Storage } from "~/types"
@@ -33,6 +33,58 @@ interface StorageProps {
   refresh: () => void
 }
 
+/**
+ * Frontend fallback for the effective status: disabled always wins, unknown
+ * status strings (legacy rows never probed) degrade to "work". The backend
+ * derives the same fields, this is just defense against stale clients.
+ */
+function effectiveStatus(storage: Storage): string {
+  if (storage.disabled) return "disabled"
+  if (storage.status === "exception" || storage.status === "disabled") {
+    return storage.status
+  }
+  return "work"
+}
+
+function StorageStatus(props: { storage: Storage }) {
+  const t = useT()
+  const status = () => effectiveStatus(props.storage)
+  return (
+    <VStack alignItems="start" spacing="$0_5" w="$full">
+      <HStack spacing="$2">
+        <Text>{t("storages.common.status")}:&nbsp;</Text>
+        <Switch>
+          <Match when={status() === "work"}>
+            <Badge colorScheme="success">
+              {t("storages.table_fields.status.work")}
+            </Badge>
+          </Match>
+          <Match when={status() === "exception"}>
+            <Badge colorScheme="danger">
+              {t("storages.table_fields.status.exception")}
+            </Badge>
+          </Match>
+          <Match when={status() === "disabled"}>
+            <Badge colorScheme="neutral">
+              {t("storages.table_fields.status.disabled")}
+            </Badge>
+          </Match>
+        </Switch>
+      </HStack>
+      <Show when={status() === "exception" && props.storage.status_message}>
+        <Text
+          fontSize="$xs"
+          color="$danger10"
+          css={{ wordBreak: "break-all" }}
+          title={props.storage.status_message}
+        >
+          {props.storage.status_message}
+        </Text>
+      </Show>
+    </VStack>
+  )
+}
+
 function StorageOp(props: StorageProps) {
   const t = useT()
   const { to } = useRouter()
@@ -46,6 +98,9 @@ function StorageOp(props: StorageProps) {
           props.storage.id
         }`,
       ),
+  )
+  const [checkLoading, checkStorage] = useFetch(
+    (): PEmptyResp => r.post(`/admin/storage/check?id=${props.storage.id}`),
   )
   return (
     <>
@@ -67,6 +122,17 @@ function StorageOp(props: StorageProps) {
         }}
       >
         {t(`global.${props.storage.disabled ? "enable" : "disable"}`)}
+      </Button>
+      <Button
+        loading={checkLoading()}
+        onClick={async () => {
+          const resp = await checkStorage()
+          handleResp(resp, () => {
+            props.refresh()
+          })
+        }}
+      >
+        {t("storages.common.check")}
       </Button>
       <DeletePopover
         name={props.storage.mount_path}
@@ -143,16 +209,7 @@ export function StorageGridItem(props: StorageProps) {
         </Show>
       </HStack>
       <HStack>
-        <Text>{t("storages.common.status")}:&nbsp;</Text>
-        <Box
-          css={{ wordBreak: "break-all" }}
-          overflowX="auto"
-          innerHTML={t(
-            `storages.table_fields.status.${props.storage.status}`,
-            undefined,
-            props.storage.status,
-          )}
-        />
+        <StorageStatus storage={props.storage} />
       </HStack>
       <Text css={{ wordBreak: "break-all" }}>{props.storage.remark}</Text>
       <HStack spacing="$2">
@@ -173,11 +230,7 @@ export function StorageListItem(props: StorageProps) {
         <StorageUsage details={props.storage.mount_details} />
       </Td>
       <Td>
-        {t(
-          `storages.table_fields.status.${props.storage.status}`,
-          undefined,
-          props.storage.status,
-        )}
+        <StorageStatus storage={props.storage} />
       </Td>
       <Td>{props.storage.remark}</Td>
       <Td>

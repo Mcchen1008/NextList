@@ -24,8 +24,15 @@ export class LocalDriver implements StorageDriver {
     let files: any[] = []
     try {
       files = await fs.readdir(physicalPath, { withFileTypes: true })
-    } catch (e) {
-      return []
+    } catch (e: any) {
+      // Surface real fs errors (missing dir, permissions, not-a-dir, ...)
+      // instead of masking them as an empty listing — the storage health
+      // check and the fs API both rely on this to report truthfully.
+      throw new Error(
+        `failed read dir [${physicalPath}]: ${e?.code || ""} ${
+          e?.message || e
+        }`.trim(),
+      )
     }
     const items: FileItem[] = await Promise.all(
       files.map(async (file: any) => {

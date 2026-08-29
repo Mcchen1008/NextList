@@ -17,6 +17,7 @@
 
 import type { Hono } from "hono"
 import { getDb, saveDb, defaultDb } from "../internal/model/db"
+import { checkAllStorages } from "../internal/op/health"
 import { hashPassword } from "./auth"
 import {
   assembleExport,
@@ -370,6 +371,19 @@ export function registerCompatRoutes(adminRouter: Hono) {
       }
 
       await saveDb(db, c.env)
+      // Fire-and-forget: probe every storage (including freshly imported
+      // ones) so the admin UI shows truthful statuses without user action.
+      // Kept off the response path — cloud drivers can take seconds each.
+      try {
+        const ctx = (c as any).executionCtx
+        if (ctx?.waitUntil) {
+          ctx.waitUntil(checkAllStorages(c.env).catch(() => {}))
+        } else {
+          void checkAllStorages(c.env).catch(() => {})
+        }
+      } catch {
+        // status probing is best-effort; never break the import response
+      }
       return c.json({ code: 200, message: "success", data: { log, counts } })
     } catch (e: any) {
       return c.json({
