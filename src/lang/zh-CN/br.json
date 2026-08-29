@@ -14,5 +14,9 @@
   "override": "覆盖",
   "encrypt_password_placeholder": "如无需加密请留空",
   "encrypt_password": "加密密码",
-  "wrong_encrypt_password": "加密密码错误"
+  "wrong_encrypt_password": "加密密码错误",
+  "openlist_export": "导出 OpenList 格式",
+  "openlist_import": "导入 OpenList 备份",
+  "openlist_import_start": "开始 OpenList 备份导入",
+  "openlist_export_done": "OpenList 格式导出完成，可直接在 OpenList 备份恢复页导入"
 }

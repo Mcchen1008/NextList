@@ -14,8 +14,42 @@ import {
 } from "../internal/op/storage"
 import { searchItems } from "../internal/op/search"
 import { resolveShare } from "../internal/op/share"
+import { getDb } from "../internal/model/db"
+import { normPath } from "../compat/openlist"
 
 export const fsRouter = new Hono()
+
+/**
+ * OpenList-compatible meta (directory) password check.
+ * Finds the meta whose path is the longest segment-wise prefix of the
+ * request path; if it carries a password, the request password must match.
+ * Returns an error message when access is denied, null otherwise — the
+ * 403 code/message matches OpenList fs/list & fs/get exactly.
+ */
+async function metaPasswordError(
+  reqPath: string,
+  password: string,
+  env?: any,
+): Promise<string | null> {
+  const db = await getDb(env)
+  const target = normPath(reqPath)
+  let best: any = null
+  let bestLen = -1
+  for (const m of db.metas || []) {
+    const mp = normPath(m.path)
+    if (
+      (target === mp || target.startsWith(mp === "/" ? "/" : mp + "/")) &&
+      mp.length > bestLen
+    ) {
+      best = m
+      bestLen = mp.length
+    }
+  }
+  if (best && best.password && best.password !== password) {
+    return "password is incorrect or you have no permission"
+  }
+  return null
+}
 
 // GET sub-directories of a path (used by FolderTree in metas/storages editors)
 fsRouter.post("/dirs", async (c) => {
@@ -181,6 +215,12 @@ fsRouter.post("/list", async (c) => {
       })
     }
 
+    // OpenList-compatible directory password enforcement (meta).
+    const metaErr = await metaPasswordError(reqPath, body.password || "", c.env)
+    if (metaErr) {
+      return c.json({ code: 403, message: metaErr, data: null })
+    }
+
     const { content, provider } = await listItems(reqPath)
     // Normalize each item to the full Obj shape expected by the frontend
     const normalized = content.map((item: any) => ({
@@ -193,12 +233,22 @@ fsRouter.post("/list", async (c) => {
       thumb: item.thumb || "",
       type: item.type ?? 0,
     }))
+    // OpenList-compatible server-side pagination:
+    // page < 1 → 1; per_page < 1 → return everything; total is the full
+    // count BEFORE slicing (same semantics as OpenList fs/list).
+    const page = Math.max(parseInt(body.page, 10) || 1, 1)
+    const perPage = parseInt(body.per_page, 10) || 0
+    const total = normalized.length
+    const contentPage =
+      perPage > 0
+        ? normalized.slice((page - 1) * perPage, (page - 1) * perPage + perPage)
+        : normalized
     return c.json({
       code: 200,
       message: "success",
       data: {
-        content: normalized,
-        total: normalized.length,
+        content: contentPage,
+        total,
         readme: "",
         header: "",
         write: true,
@@ -273,6 +323,12 @@ fsRouter.post("/get", async (c) => {
           write_content_bypass: false,
         },
       })
+    }
+
+    // OpenList-compatible directory password enforcement (meta).
+    const metaErr = await metaPasswordError(reqPath, body.password || "", c.env)
+    if (metaErr) {
+      return c.json({ code: 403, message: metaErr, data: null })
     }
 
     const { item, provider, rawUrl } = await getItem(reqPath)

@@ -6,6 +6,7 @@ import { randomString } from "../pkg/crypto"
 import { safeErrorMessage } from "../pkg/errs"
 import { JWT_SECRET } from "./middlewares"
 import { portedDriverConfigs } from "../drivers/registry"
+import { registerCompatRoutes } from "./compat"
 
 export const adminRouter = new Hono()
 
@@ -1887,3 +1888,7 @@ adminRouter.post("/plugin/batch_save", async (c) => {
     })
   }
 })
+
+// OpenList-compatible backup export / import (see src/backend/compat/openlist.ts).
+// Registered here so the admin JWT middleware above applies to them too.
+registerCompatRoutes(adminRouter)

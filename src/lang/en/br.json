@@ -14,5 +14,9 @@
   "override": "Override",
   "encrypt_password_placeholder": "Leave empty if you don't need encryption",
   "encrypt_password": "Encryption Password",
-  "wrong_encrypt_password": "Wrong encryption password"
+  "wrong_encrypt_password": "Wrong encryption password",
+  "openlist_export": "Export for OpenList",
+  "openlist_import": "Import OpenList Backup",
+  "openlist_import_start": "Start OpenList backup import",
+  "openlist_export_done": "OpenList-format export finished — import it from OpenList's Backup & Restore page"
 }

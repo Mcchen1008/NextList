@@ -184,6 +184,75 @@ const BackupRestore = () => {
   const [addSettingsLoading, addSettings] = useFetch(
     (data: SettingItem[]): PEmptyResp => r.post("/admin/setting/save", data),
   )
+  // --- OpenList-compatible export / import (backend conversion) ---
+  const [exportOLLoading, exportOL] = useFetch(
+    (payload: { format: string; password: string }): PResp<any> =>
+      r.post("/admin/export", payload),
+  )
+  const [importOLLoading, importOL] = useFetch(
+    (payload: any): PResp<any> =>
+      r.post(
+        `/admin/import?override=${override()}&password=${encodeURIComponent(
+          password(),
+        )}`,
+        payload,
+      ),
+  )
+  const exportOpenlist = async () => {
+    appendLog(t("br.start_backup") + " (OpenList)", "info")
+    handleRespWithoutNotify(
+      await exportOL({ format: "openlist", password: password() }),
+      (data) => {
+        download(
+          "openlist_backup_" + new Date().toLocaleString() + ".json",
+          data,
+        )
+        appendLog(t("br.openlist_export_done"), "success")
+      },
+      (msg) => {
+        appendLog(
+          t("br.failed_backup_item", { item: "OpenList" }) + ":" + msg,
+          "error",
+        )
+      },
+    )
+  }
+  const importOpenlist = async () => {
+    const file = document.createElement("input")
+    file.type = "file"
+    file.accept = "application/json"
+    file.onchange = async (e) => {
+      const files = (e.target as HTMLInputElement).files
+      if (!files || files.length === 0) {
+        notify.warning(t("br.no_file"))
+        return
+      }
+      let payload: any
+      try {
+        payload = JSON.parse(await files[0].text())
+      } catch {
+        notify.error("Invalid JSON file")
+        return
+      }
+      appendLog(t("br.openlist_import_start"), "info")
+      handleRespWithoutNotify(
+        await importOL(payload),
+        (data) => {
+          for (const entry of data?.log || []) {
+            appendLog(entry.msg, entry.type)
+          }
+          appendLog(t("br.finish_restore"), "info")
+        },
+        (msg) => {
+          appendLog(
+            t("br.failed_restore_item", { item: "OpenList" }) + ":" + msg,
+            "error",
+          )
+        },
+      )
+    }
+    file.click()
+  }
   const [addUserLoading, addUser] = useFetch((user: User): PEmptyResp => {
     return r.post(`/admin/user/create`, user)
   })
@@ -277,6 +346,7 @@ const BackupRestore = () => {
       updateShareLoading()
     )
   }
+  const compatLoading = () => exportOLLoading() || importOLLoading()
   const restore = async () => {
     appendLog(t("br.start_restore"), "info")
     const file = document.createElement("input")
@@ -500,6 +570,27 @@ const BackupRestore = () => {
           }}
         >
           {t("br.restore")}
+        </Button>
+      </HStack>
+      <HStack spacing="$2" w="$full">
+        <Button
+          loading={compatLoading()}
+          onClick={() => {
+            exportOpenlist()
+          }}
+          colorScheme="accent"
+          variant="outline"
+        >
+          {t("br.openlist_export")}
+        </Button>
+        <Button
+          loading={compatLoading()}
+          onClick={() => {
+            importOpenlist()
+          }}
+          variant="outline"
+        >
+          {t("br.openlist_import")}
         </Button>
       </HStack>
       <FormControl w="$full" display="flex" flexDirection="column">
