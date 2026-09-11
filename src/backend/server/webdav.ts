@@ -33,7 +33,8 @@ import {
   putItem,
 } from "../internal/op/storage"
 import { validateUserPassword } from "./auth"
-import { JWT_SECRET } from "./middlewares"
+import { getJwtSecret } from "./middlewares"
+
 import { can, PermissionBit } from "../pkg/permission"
 import { parseRangeHeader } from "../internal/stream/stream"
 import { mimeByExt } from "../pkg/xml"
@@ -131,7 +132,7 @@ webdavRouter.use("*", async (c, next) => {
     try {
       const payload = await verify(
         authHeader.replace(/^Bearer\s+/i, ""),
-        JWT_SECRET,
+        await getJwtSecret(c),
         "HS256",
       )
       const db = await getDb(c.env)

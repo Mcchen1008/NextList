@@ -15,6 +15,10 @@ export interface FileItem {
    * serves this text directly instead of proxying raw_url.
    */
   raw_content?: string
+  /** When the driver could not obtain a download link, the concrete reason (for better 404 reporting) */
+  raw_url_error?: string
+  /** Whole-file hash (e.g. md5) used for rapid upload */
+  hash?: string
 }
 
 export function calcFileType(name: string, isDir: boolean): number {

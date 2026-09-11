@@ -4,7 +4,7 @@ import { getDb, saveDb, defaultDb, getKvStatus } from "../internal/model/db"
 import { getDriver } from "../internal/op/storage"
 import { randomString } from "../pkg/crypto"
 import { safeErrorMessage } from "../pkg/errs"
-import { JWT_SECRET } from "./middlewares"
+import { getJwtSecret } from "./middlewares"
 import { portedDriverConfigs } from "../drivers/registry"
 import { registerCompatRoutes } from "./compat"
 import {
@@ -36,7 +36,7 @@ adminRouter.use("*", async (c, next) => {
     ? authHeader.substring(7)
     : authHeader
   try {
-    const payload = await verify(token, JWT_SECRET, "HS256")
+    const payload = await verify(token, await getJwtSecret(c), "HS256")
     if (payload.role !== 2) {
       return c.json({ code: 403, message: "Forbidden", data: null })
     }

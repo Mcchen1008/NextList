@@ -1,8 +1,8 @@
 import { Hono } from "hono"
 import { getDb, saveDb } from "../internal/model/db"
-import { hashPassword } from "./auth"
+import { verifyUserPassword, setUserPassword } from "../pkg/password"
 import { verify } from "hono/jwt"
-import { JWT_SECRET } from "./middlewares"
+import { getJwtSecret } from "./middlewares"
 import {
   getUserSshKeys,
   deleteUserSshKey,
@@ -99,12 +99,12 @@ userRouter.post("/create", async (c) => {
   const newId = maxId + 1
 
   const plainPassword = body.password || "123456"
-  const hashedPassword = await hashPassword(plainPassword)
 
-  const newUser = {
+  const newUser: any = {
     id: newId,
     username: body.username,
-    password: hashedPassword,
+    password: "",
+    salt: "",
     role: body.role !== undefined ? parseInt(body.role, 10) : 0,
     permission:
       body.permission !== undefined ? parseInt(body.permission, 10) : 0,
@@ -114,6 +114,8 @@ userRouter.post("/create", async (c) => {
     allow_ldap: !!body.allow_ldap,
     pwd_update_at: new Date().toISOString(),
   }
+  // 带 per-user 盐的双层哈希存储
+  await setUserPassword(newUser, plainPassword)
 
   db.users.push(newUser)
   await saveDb(db, c.env)
@@ -156,8 +158,7 @@ userRouter.post("/update", async (c) => {
   }
 
   if (body.password && body.password.trim() !== "") {
-    user.password = await hashPassword(body.password)
-    user.pwd_update_at = new Date().toISOString()
+    await setUserPassword(user, body.password)
   }
 
   if (body.role !== undefined) user.role = parseInt(body.role, 10)
@@ -275,7 +276,7 @@ export const updatePwdHandler = async (c: any) => {
     ? authHeader.substring(7)
     : authHeader
   try {
-    const payload = await verify(token, JWT_SECRET, "HS256")
+    const payload = await verify(token, await getJwtSecret(c), "HS256")
     const body = await c.req.json().catch(() => ({}))
     const oldPassword = body.old_password || ""
     const newPassword = body.new_password || ""
@@ -298,21 +299,21 @@ export const updatePwdHandler = async (c: any) => {
     }
 
     const user = db.users[userIdx]
-    const oldHashed = await hashPassword(oldPassword)
 
-    if (
-      user.password &&
-      user.password !== oldPassword &&
-      user.password !== oldHashed
-    ) {
-      return c.json(
-        { code: 400, message: "Incorrect old password", data: null },
-        400,
-      )
+    if (user.password) {
+      const oldMatches = await verifyUserPassword(oldPassword, {
+        password: user.password || "",
+        salt: user.salt,
+      })
+      if (!oldMatches) {
+        return c.json(
+          { code: 400, message: "Incorrect old password", data: null },
+          400,
+        )
+      }
     }
 
-    user.password = await hashPassword(newPassword)
-    user.pwd_update_at = new Date().toISOString()
+    await setUserPassword(user, newPassword)
     db.users[userIdx] = user
     await saveDb(db, c.env)
 

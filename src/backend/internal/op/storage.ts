@@ -56,6 +56,24 @@ import { DegooDriver } from "../../drivers/degoo/driver"
 import { WpsDriver } from "../../drivers/wps/driver"
 import { GuangYaPanDriver } from "../../drivers/guangyapan/driver"
 import { DoubaoDriver } from "../../drivers/doubao/driver"
+// ── Ported HTTP drivers (from OpenList-Worker) ──────────────────────────────
+import { DriverQuarkOpen } from "../../drivers/quark_open/driver"
+import { DriverQuarkUcTv } from "../../drivers/quark_uc_tv/driver"
+import { Pan115ShareDriver } from "../../drivers/115_share/driver"
+import { Driver123Open } from "../../drivers/123_open/driver"
+import { Driver189TV } from "../../drivers/189_tv/driver"
+import { DriverBaiduPhoto } from "../../drivers/baidu_photo/driver"
+import { DriverHalalCloudOpen } from "../../drivers/halalcloud_open/driver"
+import { DriverIpfs } from "../../drivers/ipfs_api/driver"
+import { MegaDriver } from "../../drivers/mega/driver"
+import { MoPanDriver, normalizeMoPanAddition } from "../../drivers/mopan/driver"
+import { DriverOpenlist } from "../../drivers/openlist/driver"
+import { S3Driver, normalizeS3Addition } from "../../drivers/s3/driver"
+import {
+  WeiyunDriver,
+  normalizeWeiyunAddition,
+} from "../../drivers/weiyun/driver"
+import { AzureBlobDriver } from "../../drivers/azure_blob/driver"
 
 // LocalDriver is not available in Cloudflare Workers (no fs module).
 // When running in Node.js container mode, import dynamically on first use.
@@ -644,6 +662,161 @@ export async function getDriver(
   } else if (normDriver === "doubao" || normDriver === "doubaoDrive") {
     const addition = parseAddition(storageConfig)
     driver = new DoubaoDriver(addition)
+    await driver.init?.()
+  }
+  // ── Ported HTTP drivers (from OpenList-Worker) ─────────────────────────────
+  else if (normDriver === "quarkopen" || normDriver === "quarkoa") {
+    driver = new DriverQuarkOpen(parseAddition(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "quarktv" || normDriver === "uctv") {
+    driver = new DriverQuarkUcTv(parseAddition(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "115share" || normDriver === "115sharelink") {
+    const addition = parseAddition(storageConfig)
+    driver = new Pan115ShareDriver(addition)
+    await driver.init?.()
+  } else if (normDriver === "123open" || normDriver === "123cloudopen") {
+    driver = new Driver123Open(parseAddition(storageConfig))
+    await driver.init?.()
+  } else if (
+    normDriver === "189tv" ||
+    normDriver === "cloud189tv" ||
+    normDriver === "189tvcloud"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new Driver189TV(addition, async (accessToken: string) => {
+      try {
+        const db = await getDb()
+        const st = (db.storages || []).find(
+          (s: any) => s.id === storageConfig?.id,
+        )
+        if (!st) return
+        const stAddition =
+          typeof st.addition === "string"
+            ? JSON.parse(st.addition || "{}")
+            : st.addition || {}
+        stAddition.access_token = accessToken
+        st.addition = JSON.stringify(stAddition)
+        await saveDb(db)
+      } catch (e) {
+        console.warn("[189TV] failed to persist access_token:", e)
+      }
+    })
+    await driver.init?.()
+  } else if (normDriver === "baiduphoto" || normDriver === "baiduphotos") {
+    driver = new DriverBaiduPhoto(parseAddition(storageConfig))
+    await driver.init?.()
+  } else if (
+    normDriver === "halalcloudopen" ||
+    normDriver === "halalcloudopenapi"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new DriverHalalCloudOpen(
+      addition,
+      async (refreshToken: string) => {
+        try {
+          const db = await getDb()
+          const st = (db.storages || []).find(
+            (s: any) => s.id === storageConfig?.id,
+          )
+          if (!st) return
+          const stAddition =
+            typeof st.addition === "string"
+              ? JSON.parse(st.addition || "{}")
+              : st.addition || {}
+          stAddition.refresh_token = refreshToken
+          st.addition = JSON.stringify(stAddition)
+          await saveDb(db)
+        } catch (e) {
+          console.warn("[HalalCloud] failed to persist refresh_token:", e)
+        }
+      },
+    )
+    await driver.init?.()
+  } else if (normDriver === "ipfs" || normDriver === "ipfsapi") {
+    driver = new DriverIpfs(parseAddition(storageConfig))
+    await driver.init?.()
+  } else if (normDriver === "mega" || normDriver === "meganz") {
+    driver = new MegaDriver(parseAddition(storageConfig))
+    await driver.init?.()
+  } else if (
+    normDriver === "mopan" ||
+    normDriver === "mobilecloud" ||
+    normDriver === "cmcc" ||
+    normDriver === "chinamobile"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new MoPanDriver(addition, async (deviceInfo, token) => {
+      try {
+        const db = await getDb()
+        const st = (db.storages || []).find(
+          (s: any) => s.id === storageConfig?.id,
+        )
+        if (!st) return
+        const stAddition =
+          typeof st.addition === "string"
+            ? JSON.parse(st.addition || "{}")
+            : st.addition || {}
+        stAddition.device_info = deviceInfo
+        const cleanToken = String(token).replace(/^Bearer\s+/i, "")
+        stAddition.token = cleanToken
+        st.addition = JSON.stringify(stAddition)
+        await saveDb(db)
+      } catch (e) {
+        console.warn("[MoPan] failed to persist tokens:", e)
+      }
+    })
+    await driver.init?.()
+  } else if (normDriver === "openlist") {
+    driver = new DriverOpenlist(parseAddition(storageConfig))
+    await driver.init?.()
+  } else if (
+    normDriver === "s3" ||
+    normDriver === "doge" ||
+    normDriver === "minio" ||
+    normDriver === "ceph" ||
+    normDriver === "aws" ||
+    normDriver === "r2" ||
+    normDriver === "b2" ||
+    normDriver === "cos" ||
+    normDriver === "oss" ||
+    normDriver === "kodo"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new S3Driver(addition, storageConfig?.driver || "S3")
+    await driver.init?.()
+  } else if (
+    normDriver === "weiyun" ||
+    normDriver === "tencentweiyun" ||
+    normDriver === "txweiyun"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new WeiyunDriver(addition, async (cookie) => {
+      try {
+        const db = await getDb()
+        const st = (db.storages || []).find(
+          (s: any) => s.id === storageConfig?.id,
+        )
+        if (!st) return
+        const stAddition =
+          typeof st.addition === "string"
+            ? JSON.parse(st.addition || "{}")
+            : st.addition || {}
+        stAddition.cookies = cookie
+        st.addition = JSON.stringify(normalizeWeiyunAddition(stAddition))
+        await saveDb(db)
+      } catch (e) {
+        console.warn("[WeiYun] failed to persist cookies:", e)
+      }
+    })
+    await driver.init?.()
+  } else if (
+    normDriver === "azureblob" ||
+    normDriver === "azure" ||
+    normDriver === "azblob"
+  ) {
+    const addition = parseAddition(storageConfig)
+    driver = new AzureBlobDriver(addition)
     await driver.init?.()
   } else {
     throw new Error(

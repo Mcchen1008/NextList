@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import path from "node:path"
 import backendApp from "../src/backend/index"
-import { JWT_SECRET } from "../src/backend/server/middlewares"
+import { getJwtSecret } from "../src/backend/server/middlewares"
 
 const app = new Hono()
 app.route("/", backendApp)
@@ -15,6 +15,7 @@ app.route("/", backendApp)
 async function main() {
   // Mint an admin JWT the same way the auth route does.
   const now = Math.floor(Date.now() / 1000)
+  const JWT_SECRET = await getJwtSecret(undefined)
   const token = await sign(
     { id: 1, username: "admin", role: 2, iat: now, exp: now + 600 },
     JWT_SECRET,

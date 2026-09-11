@@ -18,7 +18,7 @@
 import type { Hono } from "hono"
 import { getDb, saveDb, defaultDb } from "../internal/model/db"
 import { checkAllStorages } from "../internal/op/health"
-import { hashPassword } from "./auth"
+import { setUserPassword } from "../pkg/password"
 import {
   assembleExport,
   encryptPayload,
@@ -204,10 +204,11 @@ export function registerCompatRoutes(adminRouter: Hono) {
               (m: number, x: any) => Math.max(m, x.id || 0),
               0,
             )
-            db.users.push({
+            const pu: any = {
               id: maxId + 1,
               username: u.username,
-              password: await hashPassword(u.password || "123456"),
+              password: "",
+              salt: "",
               role: 0,
               permission: u.permission ?? 0,
               base_path: u.base_path || "/",
@@ -215,7 +216,10 @@ export function registerCompatRoutes(adminRouter: Hono) {
               sso_id: u.sso_id || "",
               allow_ldap: !!u.allow_ldap,
               pwd_update_at: new Date().toISOString(),
-            })
+            }
+            // 导入时重置为带盐双层哈希（默认密码 123456，需改密）
+            await setUserPassword(pu, u.password || "123456")
+            db.users.push(pu)
             counts.users++
             push(
               "success",
