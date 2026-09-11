@@ -90,8 +90,8 @@ export class MoPanClient {
     // Encrypt device info
     const remoteInfo = base64Encode(
       aesEncrypt(
-        Buffer.from(JSON.stringify(this.deviceInfo), "utf-8"),
-        Buffer.from(secretKey, "utf-8"),
+        new TextEncoder().encode(JSON.stringify(this.deviceInfo)),
+        new TextEncoder().encode(secretKey),
       ),
     )
 
@@ -110,8 +110,8 @@ export class MoPanClient {
     if (data !== null) {
       const jsonData = JSON.stringify(data)
       const encrypted = aesEncrypt(
-        Buffer.from(jsonData, "utf-8"),
-        Buffer.from(secretKey, "utf-8"),
+        new TextEncoder().encode(jsonData),
+        new TextEncoder().encode(secretKey),
       )
       body = base64Encode(encrypted)
     }
@@ -133,9 +133,9 @@ export class MoPanClient {
       respText = respText.slice(1, -1)
       const decrypted = aesDecrypt(
         base64Decode(respText),
-        Buffer.from(secretKey, "utf-8"),
+        new TextEncoder().encode(secretKey),
       )
-      respText = decrypted.toString("utf-8")
+      respText = new TextDecoder().decode(decrypted)
     }
 
     const result: MoPanResponse<any> = JSON.parse(respText)
