@@ -30,6 +30,7 @@
 - [x] 两步验证 2FA (TOTP) - _RFC 6238 via Web Crypto: /auth/2fa/generate + /verify, login 402 → otp_code flow, admin /admin/user/cancel_2fa, /me otp flag_
 - [x] 回归测试：scripts/test-tier3.mts (17 项：搜索 scope/分页、other 分发、2FA 全流程)
 - [x] 插件系统 (Plugin system) - _Ported from OpenListNext (upstream-compatible): plugin.json manifest + config_schema 可视化配置、ZIP 上传 / URL 安装、后台插件管理（列表 / 启停 / 配置 / 导出 / 导入）、运行时 SDK（window.OpenListPlugin：悬浮挂件 / 文件与头部操作注入 / 事件总线 / 钩子 / Notify / 资源加载 / fs / admin API）、/admin/plugin/\* 管理 API + /public/plugins 公开 API、示例插件 plugins_src/oplist-plugin-live2d_
+- [x] MCP (Model Context Protocol) - \_完整 JSON-RPC 2.0 实现：initialize 握手（协议版本协商 2025-03-26/2024-11-05）、ping、tools/list + tools/call（list_files / get_file_info / search_files / get_system_info 真实执行）、resources/read（storage/metrics + storage/list）、prompts/get（summarize_directory）；双传输：Streamable HTTP（POST /api/mcp）+ 旧版 SSE（GET /api/mcp/sse + POST /api/mcp/messages，keepalive）；鉴权复用 getUserFromContext（JWT / 静态 API Token / 启用的 guest），initialize 与 ping 免鉴权
 
 ## Storages (多种存储)
 
