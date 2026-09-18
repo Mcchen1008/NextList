@@ -48,7 +48,7 @@ interface LogEntry {
  * exact OpenList names are mapped & field-renamed, NextList-native names
  * (e.g. from a raw NextList backup) are kept as-is.
  */
-function convertImportStorage(st: any): {
+export function convertImportStorage(st: any): {
   storage: any
   supported: boolean
 } {

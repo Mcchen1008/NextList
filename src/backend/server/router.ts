@@ -11,6 +11,7 @@ import {
 import { adminRouter } from "./admin"
 import { rawRouter } from "./raw"
 import { publicRouter } from "./public"
+import { installRouter } from "./install"
 import { mcpRouter } from "./mcp"
 import { debugRouter } from "./debug"
 import { shareRouter } from "./share"
@@ -35,6 +36,7 @@ export function setupRouter(app: Hono) {
   app.route("/fs", fsRouter)
   app.route("/auth", authRouter)
   app.route("/public", publicRouter)
+  app.route("/install", installRouter)
   app.route("/admin", adminRouter)
   app.route("/mcp", mcpRouter)
   app.route("/debug", debugRouter)

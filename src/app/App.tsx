@@ -12,7 +12,7 @@ import {
 import { Portal } from "solid-js/web"
 import { Error, FullScreenLoading } from "~/components"
 import { useLoading, useRouter, useT } from "~/hooks"
-import { setSettings } from "~/store"
+import { installRequired, setInstallRequired, setSettings } from "~/store"
 import { Resp } from "~/types"
 import { base_path, bus, initPluginEngine, r } from "~/utils"
 import { MustUser, UserOrGuest } from "./MustUser"
@@ -22,6 +22,7 @@ import { globalStyles } from "./theme"
 const Home = lazy(() => import("~/pages/home/Layout"))
 const Manage = lazy(() => import("~/pages/manage"))
 const Login = lazy(() => import("~/pages/login"))
+const Install = lazy(() => import("~/pages/install"))
 
 const App: Component = () => {
   const t = useT()
@@ -70,9 +71,35 @@ const App: Component = () => {
           setSettings(defaultSettings)
         }
       })(),
+      (async () => {
+        // 安装状态独立获取：失败时不阻塞主流程（保持未知，不触发跳转）
+        try {
+          const resp = (await r.get("/install/status")) as Resp<{
+            required: boolean
+          }>
+          if (resp && resp.code === 200) {
+            setInstallRequired(!!resp.data?.required)
+          }
+        } catch {
+          // 状态未知时不做任何跳转
+        }
+      })(),
     ]),
   )
   data()
+
+  // 安装向导路由守卫：全新实例把所有入口引到 /install；
+  // 已完成的实例访问 /install 自动回主页。
+  createEffect(() => {
+    const required = installRequired()
+    if (required === null) return
+    const current = pathname()
+    if (required && current !== "/install") {
+      to("/install")
+    } else if (!required && current === "/install") {
+      to("/")
+    }
+  })
   return (
     <>
       <Portal>
@@ -92,6 +119,7 @@ const App: Component = () => {
       <Switch
         fallback={
           <Routes base={base_path}>
+            <Route path="/install" component={Install} />
             <Route path="/@login" component={Login} />
             <Route
               path="/@manage/*"
@@ -134,6 +162,14 @@ const App: Component = () => {
           />
         </Match>
         <Match when={loading()}>
+          <FullScreenLoading />
+        </Match>
+        {/* 需要安装时先挡住其他页面，等守卫跳到 /install */}
+        <Match when={installRequired() === true && pathname() !== "/install"}>
+          <FullScreenLoading />
+        </Match>
+        {/* 已完成安装时挡住向导页，等守卫跳回主页 */}
+        <Match when={installRequired() === false && pathname() === "/install"}>
           <FullScreenLoading />
         </Match>
       </Switch>
