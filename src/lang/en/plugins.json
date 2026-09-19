@@ -68,7 +68,7 @@
   "empty_installed": "No plugins installed yet. Click 'Install Plugin' to upload a ZIP package or install from URL.",
   "market": {
     "title": "Plugin Market",
-    "search_placeholder": "Search plugins by name...",
+    "search_placeholder": "Search plugins by name or repo...",
     "refresh": "Refresh",
     "install": "Install",
     "installing": "Installing...",

@@ -19,7 +19,13 @@ import {
 } from "@hope-ui/solid"
 import { createResource, createSignal, For, Show } from "solid-js"
 import { FaSolidPuzzlePiece } from "solid-icons/fa"
-import { FiBookOpen, FiDownload, FiGithub, FiRefreshCw } from "solid-icons/fi"
+import {
+  FiBookOpen,
+  FiDownload,
+  FiGithub,
+  FiRefreshCw,
+  FiStar,
+} from "solid-icons/fi"
 import { useManageTitle, useT } from "~/hooks"
 import { Markdown } from "~/components"
 import { PluginItem, Resp } from "~/types"
@@ -35,7 +41,10 @@ import {
 /** 远程市场插件元数据（NextListWeb /api/plugins 返回结构） */
 interface MarketPlugin {
   id: string
+  /** 插件展示名：市场侧已优先取自仓库根目录 plugin.json 的 name */
   name: string
+  /** 仓库名（name 的回退来源与次要展示） */
+  repoName?: string
   description: string
   owner: string
   ownerAvatar: string
@@ -43,6 +52,12 @@ interface MarketPlugin {
   icon: string | null
   stars: number
   topics: string[]
+  /** 插件清单标签（支持中文），展示优先于 topics */
+  tags?: string[]
+  /** 插件版本号（plugin.json 的 version） */
+  version?: string | null
+  /** 插件清单唯一 id（与已安装插件精确匹配） */
+  pluginId?: string | null
   updatedAt: string
   downloadUrl: string
 }
@@ -98,6 +113,7 @@ const Market = () => {
   const isInstalled = (mp: MarketPlugin) => {
     const keys = installed()
     if (!keys) return false
+    if (mp.pluginId && keys.has(mp.pluginId.toLowerCase())) return true
     return keys.has(mp.name.toLowerCase()) || keys.has(mp.id.toLowerCase())
   }
 
@@ -189,6 +205,11 @@ const Market = () => {
   const cardBg = useColorModeValue("$white", "$neutral3")
   const cardBorder = useColorModeValue("$neutral4", "$neutral5")
   const shadow = useColorModeValue("$sm", "$none")
+
+  const versionLabel = (v: string | null | undefined) => {
+    if (!v) return ""
+    return v.startsWith("v") || v.startsWith("V") ? v : `v${v}`
+  }
 
   const formatDate = (iso: string) => {
     const ms = Date.parse(iso ?? "")
@@ -309,13 +330,40 @@ const Market = () => {
                           fontWeight="$bold"
                           fontSize="$sm"
                           noOfLines={1}
-                          title={mp.name}
+                          title={
+                            mp.repoName ? `${mp.owner}/${mp.repoName}` : mp.name
+                          }
                         >
                           {mp.name}
+                          <Show when={versionLabel(mp.version)}>
+                            <Badge
+                              ml="$1"
+                              colorScheme="accent"
+                              variant="subtle"
+                              fontSize="$2xs"
+                              verticalAlign="middle"
+                            >
+                              {versionLabel(mp.version)}
+                            </Badge>
+                          </Show>
                         </Text>
-                        <Text fontSize="$xs" color="$neutral10" noOfLines={1}>
-                          {mp.owner} · ⭐ {mp.stars} ·{" "}
-                          {formatDate(mp.updatedAt)}
+                        <Text
+                          fontSize="$xs"
+                          color="$neutral10"
+                          noOfLines={1}
+                          title={`${mp.owner}${mp.repoName ? `/${mp.repoName}` : ""}`}
+                        >
+                          {mp.owner}
+                          {mp.repoName ? `/${mp.repoName}` : ""} · {""}
+                          <FiStar
+                            size={11}
+                            style={{
+                              display: "inline",
+                              "vertical-align": "-1.5px",
+                              "margin-right": "2px",
+                            }}
+                          />
+                          {mp.stars} · {formatDate(mp.updatedAt)}
                         </Text>
                       </VStack>
                       <Show when={isInstalled(mp)}>
@@ -341,15 +389,22 @@ const Market = () => {
 
                     <Show
                       when={
-                        (mp.topics ?? []).filter((x) => x !== "nextlist-plugin")
-                          .length > 0
+                        (mp.tags?.length
+                          ? mp.tags
+                          : (mp.topics ?? []).filter(
+                              (x) => x !== "nextlist-plugin",
+                            )
+                        ).length > 0
                       }
                     >
                       <HStack spacing="$1" wrap={"wrap" as any}>
                         <For
-                          each={(mp.topics ?? [])
-                            .filter((x) => x !== "nextlist-plugin")
-                            .slice(0, 3)}
+                          each={(mp.tags?.length
+                            ? mp.tags
+                            : (mp.topics ?? []).filter(
+                                (x) => x !== "nextlist-plugin",
+                              )
+                          ).slice(0, 3)}
                         >
                           {(topic) => (
                             <Badge
