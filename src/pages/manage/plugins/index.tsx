@@ -173,6 +173,15 @@ const Plugins = () => {
         >
           {t("global.add")}
         </Button>
+        <Button
+          colorScheme="accent"
+          variant="outline"
+          onClick={() => {
+            to("/@manage/plugins/market")
+          }}
+        >
+          {t("plugins.market.title")}
+        </Button>
         <Button colorScheme="neutral" onClick={() => setImportModalOpen(true)}>
           {t("plugins.actions.import")}
         </Button>

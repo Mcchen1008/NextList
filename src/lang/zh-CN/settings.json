@@ -109,6 +109,8 @@
   "share_summary_content": "分享摘要说明",
   "show_disk_usage_in_plain_text": "纯文本显示磁盘容量",
   "sign_all": "强制签名所有下载链接",
+  "plugin_market_api": "插件市场地址",
+  "plugin_market_api-tips": "远程插件市场（NextListWeb）的 API 地址，留空使用默认官方市场。",
   "site_title": "站点标题",
   "sso_application_name": "SSO 应用名称",
   "sso_auto_register": "SSO 自动注册用户",

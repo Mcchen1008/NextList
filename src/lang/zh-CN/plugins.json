@@ -65,5 +65,22 @@
     "paste_json": "请粘贴插件 JSON 数据",
     "import_success": "成功导入插件"
   },
-  "empty_installed": "暂未安装任何插件，您可以点击右上角「安装插件」上传 ZIP 插件包或通过 URL 安装第三方开源插件。"
+  "empty_installed": "暂未安装任何插件，您可以点击右上角「安装插件」上传 ZIP 插件包或通过 URL 安装第三方开源插件。",
+  "market": {
+    "title": "插件市场",
+    "search_placeholder": "按插件名搜索…",
+    "refresh": "刷新",
+    "install": "安装",
+    "installing": "安装中…",
+    "installed": "已安装",
+    "install_success": "插件安装成功",
+    "view_readme": "详情",
+    "readme_empty": "暂无 README。",
+    "loading": "正在加载插件市场…",
+    "load_failed": "插件市场加载失败",
+    "retry": "重试",
+    "empty": "市场中没有匹配的插件。",
+    "count": "共",
+    "desc_hint": "插件来自远程插件市场（NextListWeb），可按名称搜索并一键安装；市场地址可在“设置 - 全局”中修改。"
+  }
 }

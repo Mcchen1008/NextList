@@ -65,5 +65,22 @@
     "paste_json": "Paste plugins JSON data here",
     "import_success": "Plugins imported successfully"
   },
-  "empty_installed": "No plugins installed yet. Click 'Install Plugin' to upload a ZIP package or install from URL."
+  "empty_installed": "No plugins installed yet. Click 'Install Plugin' to upload a ZIP package or install from URL.",
+  "market": {
+    "title": "Plugin Market",
+    "search_placeholder": "Search plugins by name...",
+    "refresh": "Refresh",
+    "install": "Install",
+    "installing": "Installing...",
+    "installed": "Installed",
+    "install_success": "Plugin installed successfully",
+    "view_readme": "README",
+    "readme_empty": "No README available.",
+    "loading": "Loading plugin market...",
+    "load_failed": "Failed to load plugin market",
+    "retry": "Retry",
+    "empty": "No matching plugins found in the market.",
+    "count": "Total",
+    "desc_hint": "Plugins come from the remote plugin market (NextListWeb). Search by name and install with one click; the market URL can be changed in Settings - Global."
+  }
 }

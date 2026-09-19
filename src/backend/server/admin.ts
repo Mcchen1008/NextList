@@ -1954,6 +1954,186 @@ adminRouter.post("/plugin/batch_save", async (c) => {
   }
 })
 
+// --- Plugin Market API (remote market proxy, see settings key plugin_market_api) ---
+
+/** 默认插件市场地址（官方 NextListWeb 站点），可在设置中覆盖 */
+const DEFAULT_MARKET_BASE = "https://nextlist.eu.cc"
+
+/** 读取市场 API 基地址（settings.plugin_market_api），去尾部斜杠，空则回退默认 */
+async function getMarketBase(env: any): Promise<string> {
+  const db = await getDb(env)
+  const item = (db.settings || []).find(
+    (s: any) => s.key === "plugin_market_api",
+  )
+  const base = String(item?.value ?? "")
+    .trim()
+    .replace(/\/+$/, "")
+  return base || DEFAULT_MARKET_BASE
+}
+
+const MARKET_ID_RE = /^[^/]+\/[^/]+$/
+
+/** 转发 GET 到市场 API 并把 {code,message,data} 包装为标准响应 */
+async function proxyMarketJson(c: any, path: string): Promise<Response> {
+  const base = await getMarketBase(c.env)
+  const url = `${base}${path}`
+  try {
+    const resp = await fetch(url, {
+      signal: AbortSignal.timeout(15_000),
+      headers: { "User-Agent": "NextList" },
+    })
+    if (!resp.ok) {
+      return c.json({
+        code: 502,
+        message: `插件市场请求失败：HTTP ${resp.status}（${url}）`,
+        data: null,
+      })
+    }
+    const data = await resp.json()
+    return c.json({ code: 200, message: "success", data })
+  } catch (err: any) {
+    return c.json({
+      code: 502,
+      message: `无法连接插件市场（${url}）：${safeErrorMessage(err, "network error")}`,
+      data: null,
+    })
+  }
+}
+
+/**
+ * GET /api/admin/plugin/market/list?q=&limit=
+ * 搜索远程插件市场（服务端代理，避免前端跨域与暴露市场地址）。
+ * q 为空时返回市场全量列表（按 Star 降序）。
+ */
+adminRouter.get("/plugin/market/list", async (c) => {
+  const params = new URLSearchParams()
+  const q = (c.req.query("q") || "").trim()
+  const limit = (c.req.query("limit") || "").trim()
+  if (q) params.set("q", q)
+  if (limit) params.set("limit", limit)
+  const qs = params.toString()
+  return proxyMarketJson(c, `/api/plugins/search${qs ? `?${qs}` : ""}`)
+})
+
+/**
+ * GET /api/admin/plugin/market/detail?id=owner/repo
+ * 查询单个市场插件元数据（含下载直链等）。
+ */
+adminRouter.get("/plugin/market/detail", async (c) => {
+  const id = (c.req.query("id") || "").trim()
+  if (!MARKET_ID_RE.test(id)) {
+    return c.json({
+      code: 400,
+      message: "id is required (owner/repo)",
+      data: null,
+    })
+  }
+  const [owner, repo] = id.split("/")
+  return proxyMarketJson(
+    c,
+    `/api/plugins/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
+  )
+})
+
+/**
+ * GET /api/admin/plugin/market/readme?id=owner/repo
+ * 查询市场插件 README（Markdown 文本），用于市场页详情展示。
+ */
+adminRouter.get("/plugin/market/readme", async (c) => {
+  const id = (c.req.query("id") || "").trim()
+  if (!MARKET_ID_RE.test(id)) {
+    return c.json({
+      code: 400,
+      message: "id is required (owner/repo)",
+      data: null,
+    })
+  }
+  const [owner, repo] = id.split("/")
+  return proxyMarketJson(
+    c,
+    `/api/plugins/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/readme`,
+  )
+})
+
+/**
+ * GET /api/admin/plugin/market/download?id=owner/repo
+ * 服务端下载插件 ZIP 包（市场详情的 downloadUrl，通常为 GitHub Release 资产），
+ * 二进制透传给前端，由前端 parsePluginZip 解析后走 /plugin/install 安装。
+ * 统一经后端代理可规避浏览器 CORS / 直链 302 等问题。
+ */
+adminRouter.get("/plugin/market/download", async (c) => {
+  const id = (c.req.query("id") || "").trim()
+  if (!MARKET_ID_RE.test(id)) {
+    return c.json({
+      code: 400,
+      message: "id is required (owner/repo)",
+      data: null,
+    })
+  }
+  try {
+    const base = await getMarketBase(c.env)
+    const [owner, repo] = id.split("/")
+    const detailResp = await fetch(
+      `${base}/api/plugins/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
+      {
+        signal: AbortSignal.timeout(15_000),
+        headers: { "User-Agent": "NextList" },
+      },
+    )
+    if (!detailResp.ok) {
+      return c.json({
+        code: 502,
+        message: `获取插件详情失败：HTTP ${detailResp.status}`,
+        data: null,
+      })
+    }
+    const detail = (await detailResp.json()) as any
+    const downloadUrl = String(detail?.plugin?.downloadUrl ?? "")
+    if (!/^https?:\/\//.test(downloadUrl)) {
+      return c.json({
+        code: 404,
+        message: "该插件未提供有效的下载链接",
+        data: null,
+      })
+    }
+    const zipResp = await fetch(downloadUrl, {
+      signal: AbortSignal.timeout(60_000),
+      headers: { "User-Agent": "NextList" },
+      redirect: "follow",
+    })
+    if (!zipResp.ok) {
+      return c.json({
+        code: 502,
+        message: `下载插件包失败：HTTP ${zipResp.status}`,
+        data: null,
+      })
+    }
+    const buf = await zipResp.arrayBuffer()
+    // ZIP 魔数校验（PK\x03\x04），downloadUrl 回退为仓库地址时可提前报错
+    const head = new Uint8Array(buf.slice(0, 2))
+    if (!(head[0] === 0x50 && head[1] === 0x4b)) {
+      return c.json({
+        code: 400,
+        message: "下载内容不是有效的 ZIP 插件包",
+        data: null,
+      })
+    }
+    return new Response(buf, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/zip",
+        "Content-Disposition": `attachment; filename="${id.replace("/", "-")}.zip"`,
+      },
+    })
+  } catch (err: any) {
+    return c.json({
+      code: 502,
+      message: `下载插件包失败：${safeErrorMessage(err, "network error")}`,
+      data: null,
+    })
+  }
+})
+
 // OpenList-compatible backup export / import (see src/backend/compat/openlist.ts).
 // Registered here so the admin JWT middleware above applies to them too.
 registerCompatRoutes(adminRouter)

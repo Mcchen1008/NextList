@@ -19,6 +19,14 @@ export const defaultDb = {
       flag: 0,
     },
     {
+      key: "plugin_market_api",
+      value: "https://nextlist.eu.cc",
+      type: "string",
+      help: "Plugin Market API base URL (NextListWeb)",
+      group: 4,
+      flag: 1,
+    },
+    {
       key: "announcement",
       value: "",
       type: "text",

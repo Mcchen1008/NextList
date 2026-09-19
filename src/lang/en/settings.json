@@ -109,6 +109,8 @@
   "share_summary_content": "Share summary content",
   "show_disk_usage_in_plain_text": "Show disk usage in plain text",
   "sign_all": "Sign all",
+  "plugin_market_api": "Plugin market URL",
+  "plugin_market_api-tips": "Base URL of the remote plugin market (NextListWeb). Leave empty to use the default official market.",
   "site_title": "Site title",
   "sso_application_name": "SSO application name",
   "sso_auto_register": "SSO auto register",

@@ -48,6 +48,10 @@ const hide_routes: Route[] = [
     component: lazy(() => import("./plugins/AddPlugin")),
   },
   {
+    to: "/plugins/market",
+    component: lazy(() => import("./plugins/Market")),
+  },
+  {
     to: "/plugins/config/:id",
     component: lazy(() => import("./plugins/ConfigPlugin")),
   },
