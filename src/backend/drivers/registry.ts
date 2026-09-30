@@ -29,6 +29,7 @@ import { degooDriverConfig } from "./degoo/meta"
 import { wpsDriverConfig } from "./wps/meta"
 import { guangyapanDriverConfig } from "./guangyapan/meta"
 import { doubaoDriverConfig } from "./doubao/meta"
+import { s3DriverConfig, dogeDriverConfig } from "./s3/meta"
 
 // Drivers ported in the previous batch (commit 28e3246) — meta.ts added now
 import { pikpakDriverConfig } from "./pikpak/meta"
@@ -75,6 +76,8 @@ export const portedDriverConfigs: Record<string, any> = {
   WPS: wpsDriverConfig,
   GuangYaPan: guangyapanDriverConfig,
   Doubao: doubaoDriverConfig,
+  S3: s3DriverConfig,
+  Doge: dogeDriverConfig,
 
   // Previous batch (28e3246)
   PikPak: pikpakDriverConfig,

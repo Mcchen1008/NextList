@@ -1,15 +1,195 @@
 // Based on: https://github.com/OpenListTeam/OpenList/tree/main/drivers/s3
+// Admin UI form configs for the S3 (object storage) driver family.
+// S3 itself covers AWS S3 and all S3-compatible providers (MinIO, Ceph,
+// CSTCloud, COS, OSS, KODO, B2, R2 ...); "Doge" reuses the same fields but
+// obtains temporary credentials via DogeCloud's session API (see sigv4.ts).
 
-export const config = {
+export const s3DriverConfig = {
   name: "S3",
-  localSort: true,
-  defaultRoot: "/",
-  checkStatus: true,
+  default_mount_path: "/s3",
+  common: [
+    {
+      name: "mount_path",
+      type: "string",
+      default: "",
+      required: true,
+      help: "1",
+    },
+    { name: "order", type: "number", default: "0", required: false, help: "" },
+    { name: "remark", type: "string", default: "", required: false, help: "" },
+    {
+      name: "cache_expiration",
+      type: "number",
+      default: "30",
+      required: false,
+      help: "",
+    },
+  ],
+  additional: [
+    {
+      name: "bucket",
+      type: "string",
+      default: "",
+      required: true,
+      help: "Bucket name",
+    },
+    {
+      name: "endpoint",
+      type: "string",
+      default: "",
+      required: true,
+      help: "S3 endpoint, e.g. s3.cstcloud.cn or s3.us-east-1.amazonaws.com",
+    },
+    {
+      name: "region",
+      type: "string",
+      default: "us-east-1",
+      required: false,
+      help: "Region, e.g. us-east-1 (some providers accept any non-empty value)",
+    },
+    {
+      name: "access_key_id",
+      type: "string",
+      default: "",
+      required: true,
+      help: "true",
+    },
+    {
+      name: "secret_access_key",
+      type: "string",
+      default: "",
+      required: true,
+      help: "true",
+    },
+    {
+      name: "session_token",
+      type: "string",
+      default: "",
+      required: false,
+      help: "Optional temporary session token (STS)",
+    },
+    {
+      name: "root_folder_path",
+      type: "string",
+      default: "/",
+      required: false,
+      help: 'Path inside the bucket to mount, e.g. /backup; "/" is the bucket root',
+    },
+    {
+      name: "custom_host",
+      type: "string",
+      default: "",
+      required: false,
+      help: "Custom CDN/acceleration host for download links (leave empty to use the endpoint)",
+    },
+    {
+      name: "enable_custom_host_presign",
+      type: "bool",
+      default: "false",
+      required: false,
+      help: "Sign download links with the custom host as well",
+    },
+    {
+      name: "sign_url_expire",
+      type: "number",
+      default: "4",
+      required: false,
+      help: "Presigned link lifetime in hours",
+    },
+    {
+      name: "placeholder",
+      type: "string",
+      default: ".openlist",
+      required: false,
+      help: "Placeholder object name used to emulate empty folders",
+    },
+    {
+      name: "force_path_style",
+      type: "bool",
+      default: "false",
+      required: false,
+      help: "Use http://endpoint/bucket/path style (MinIO/CSTCloud often requires this)",
+    },
+    {
+      name: "list_object_version",
+      type: "select",
+      options: "v1,v2",
+      default: "v1",
+      required: false,
+      help: "ListObjects API version",
+    },
+    {
+      name: "remove_bucket",
+      type: "bool",
+      default: "false",
+      required: false,
+      help: "Remove the bucket name from the download path (when the endpoint already contains the bucket)",
+    },
+    {
+      name: "add_filename_to_disposition",
+      type: "bool",
+      default: "false",
+      required: false,
+      help: "Add filename to the Content-Disposition header of the download link",
+    },
+    {
+      name: "enable_direct_upload",
+      type: "bool",
+      default: "false",
+      required: false,
+      help: "Upload directly from the browser via presigned PUT URL",
+    },
+    {
+      name: "direct_upload_host",
+      type: "string",
+      default: "",
+      required: false,
+      help: "Custom host used for direct upload (leave empty to reuse the endpoint)",
+    },
+    {
+      name: "user_agent",
+      type: "string",
+      default: "",
+      required: false,
+      help: "Custom User-Agent header sent to the S3 API",
+    },
+    {
+      name: "order_by",
+      type: "select",
+      options: "name,size,modified",
+      default: "name",
+      required: false,
+      help: "",
+    },
+    {
+      name: "order_direction",
+      type: "select",
+      options: "asc,desc",
+      default: "asc",
+      required: false,
+      help: "",
+    },
+  ],
+  config: {
+    name: "S3",
+    local_sort: true,
+    only_local: false,
+    only_proxy: false,
+    no_cache: false,
+    no_upload: false,
+    need_ms: false,
+    default_root: "/",
+  },
 }
 
-export const dogeConfig = {
+// Doge (DogeCloud) shares the S3 implementation — the driver auto-refreshes
+// temporary credentials via getDogeCredentials() when the name contains "doge".
+export const dogeDriverConfig = {
+  ...s3DriverConfig,
   name: "Doge",
-  localSort: true,
-  defaultRoot: "/",
-  checkStatus: true,
+  default_mount_path: "/doge",
+  config: {
+    ...s3DriverConfig.config,
+    name: "Doge",
+  },
 }

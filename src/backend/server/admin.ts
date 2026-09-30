@@ -12,6 +12,11 @@ import {
   checkStorageById,
   StorageHealthResult,
 } from "../internal/op/health"
+import {
+  queryOpLogs,
+  clearOpLogs,
+  getOpLogStats,
+} from "../internal/model/oplog"
 
 export const adminRouter = new Hono()
 
@@ -308,6 +313,9 @@ adminRouter.get("/driver/names", (c) => {
       "WPS",
       "GuangYaPan",
       "Doubao",
+      // Object storage (S3-compatible)
+      "S3",
+      "Doge",
     ],
   })
 })
@@ -1657,6 +1665,45 @@ adminRouter.post("/meta/delete", async (c) => {
 
 import { userRouter } from "./user"
 adminRouter.route("/user", userRouter)
+
+// ---- 文件操作日志（独立 KV 键 nextlist_op_logs） ----
+// 记录"谁（账号）在什么时候对哪些文件做了什么"，供管理员后台"操作日志"页查询。
+adminRouter.get("/oplog/list", async (c) => {
+  const q = c.req.query()
+  const result = await queryOpLogs(
+    {
+      username: q.username || undefined,
+      action: q.action || undefined,
+      keyword: q.keyword || undefined,
+      success:
+        q.success === "true" ? true : q.success === "false" ? false : undefined,
+      start_time: q.start_time || undefined,
+      end_time: q.end_time || undefined,
+      page: parseInt(q.page || "1", 10) || 1,
+      per_page: parseInt(q.per_page || "30", 10) || 30,
+    },
+    c.env,
+  )
+  return c.json({
+    code: 200,
+    message: "success",
+    data: result,
+  })
+})
+
+adminRouter.get("/oplog/stats", async (c) => {
+  const stats = await getOpLogStats(c.env)
+  return c.json({ code: 200, message: "success", data: stats })
+})
+
+adminRouter.post("/oplog/clear", async (c) => {
+  const ok = await clearOpLogs(c.env)
+  return c.json({
+    code: 200,
+    message: ok ? "success" : "cleared in memory only (no KV binding)",
+    data: null,
+  })
+})
 
 adminRouter.get("/kv/status", async (c) => {
   const statusData = await getKvStatus(c.env)
