@@ -1026,7 +1026,7 @@ ${await jv(h)}
   }
   var Gv = "blob.edgeone.site",
     Wv = "blob-nocache.edgeone.site",
-    Rp = class et {
+    Rp = class tt {
       credentialManager
       bucket = ""
       region = ""
@@ -1136,7 +1136,7 @@ ${await jv(h)}
             let h = await fi(d)
             throw new fe(
               d.status,
-              et.buildErrorDetail(
+              tt.buildErrorDetail(
                 "PUT",
                 n,
                 a,
@@ -1153,7 +1153,7 @@ ${await jv(h)}
         } catch (d) {
           throw d instanceof fe
             ? d
-            : new fe(0, et.buildErrorDetail("PUT", n, a, gi(d)))
+            : new fe(0, tt.buildErrorDetail("PUT", n, a, gi(d)))
         }
       }
       async createPresignedPutUrl(e, t, r) {
@@ -1186,7 +1186,7 @@ ${await jv(h)}
             let d = await fi(a)
             throw new fe(
               a.status,
-              et.buildErrorDetail(
+              tt.buildErrorDetail(
                 "GET",
                 i,
                 o,
@@ -1201,7 +1201,7 @@ ${await jv(h)}
         } catch (a) {
           throw a instanceof fe
             ? a
-            : new fe(0, et.buildErrorDetail("GET", i, o, gi(a)))
+            : new fe(0, tt.buildErrorDetail("GET", i, o, gi(a)))
         }
       }
       async headObject(e, t, r) {
@@ -1215,7 +1215,7 @@ ${await jv(h)}
             let c = await fi(a)
             throw new fe(
               a.status,
-              et.buildErrorDetail(
+              tt.buildErrorDetail(
                 "HEAD",
                 i,
                 o,
@@ -1234,7 +1234,7 @@ ${await jv(h)}
         } catch (a) {
           throw a instanceof fe
             ? a
-            : new fe(0, et.buildErrorDetail("HEAD", i, o, gi(a)))
+            : new fe(0, tt.buildErrorDetail("HEAD", i, o, gi(a)))
         }
       }
       async deleteObject(e, t) {
@@ -1255,7 +1255,7 @@ ${await jv(h)}
           let a = await fi(o)
           throw new fe(
             o.status,
-            et.buildErrorDetail(
+            tt.buildErrorDetail(
               "DELETE",
               r,
               n,
@@ -1266,7 +1266,7 @@ ${await jv(h)}
         } catch (o) {
           throw o instanceof fe
             ? o
-            : new fe(0, et.buildErrorDetail("DELETE", r, n, gi(o)))
+            : new fe(0, tt.buildErrorDetail("DELETE", r, n, gi(o)))
         }
       }
       async listObjects(e, t) {
@@ -1337,7 +1337,7 @@ ${await jv(h)}
             let a = await fi(n)
             throw new fe(
               n.status,
-              et.buildErrorDetail(
+              tt.buildErrorDetail(
                 "LIST",
                 t,
                 e.prefix,
@@ -1351,7 +1351,7 @@ ${await jv(h)}
         } catch (n) {
           throw n instanceof fe
             ? n
-            : new fe(0, et.buildErrorDetail("LIST", t, e.prefix, gi(n)))
+            : new fe(0, tt.buildErrorDetail("LIST", t, e.prefix, gi(n)))
         }
       }
     }
@@ -1633,8 +1633,8 @@ ${await jv(h)}
     return { authToken: e.deployCredential, consistency: s?.consistency }
   }
 })
-var tt = {}
-as(tt, {
+var rt = {}
+as(rt, {
   defaultDb: () => _t,
   getDb: () => F,
   getKvBinding: () => Ss,
@@ -2947,12 +2947,12 @@ var V = K((Hs, uh) => {
                 ? (T = e.ceil(T))
                 : (T = e.max((T | 0) - this._minBufferSize, 0))
               var A = T * b,
-                E = e.min(A * 4, x)
+                C = e.min(A * 4, x)
               if (A) {
                 for (var k = 0; k < A; k += b) this._doProcessBlock(v, k)
-                ;((g = v.splice(0, A)), (_.sigBytes -= E))
+                ;((g = v.splice(0, A)), (_.sigBytes -= C))
               }
-              return new c.init(g, E)
+              return new c.init(g, C)
             },
             clone: function () {
               var m = l.clone.call(this)
@@ -3331,7 +3331,7 @@ var Nt = K((Ys, vh) => {
               S = p[f + 4],
               T = p[f + 5],
               A = p[f + 6],
-              E = p[f + 7],
+              C = p[f + 7],
               k = p[f + 8],
               D = p[f + 9],
               U = p[f + 10],
@@ -3340,75 +3340,75 @@ var Nt = K((Ys, vh) => {
               $ = p[f + 13],
               z = p[f + 14],
               W = p[f + 15],
-              C = g[0],
+              E = g[0],
               O = g[1],
               q = g[2],
               R = g[3]
-            ;((C = c(C, O, q, R, _, 7, a[0])),
-              (R = c(R, C, O, q, v, 12, a[1])),
-              (q = c(q, R, C, O, x, 17, a[2])),
-              (O = c(O, q, R, C, b, 22, a[3])),
-              (C = c(C, O, q, R, S, 7, a[4])),
-              (R = c(R, C, O, q, T, 12, a[5])),
-              (q = c(q, R, C, O, A, 17, a[6])),
-              (O = c(O, q, R, C, E, 22, a[7])),
-              (C = c(C, O, q, R, k, 7, a[8])),
-              (R = c(R, C, O, q, D, 12, a[9])),
-              (q = c(q, R, C, O, U, 17, a[10])),
-              (O = c(O, q, R, C, I, 22, a[11])),
-              (C = c(C, O, q, R, N, 7, a[12])),
-              (R = c(R, C, O, q, $, 12, a[13])),
-              (q = c(q, R, C, O, z, 17, a[14])),
-              (O = c(O, q, R, C, W, 22, a[15])),
-              (C = d(C, O, q, R, v, 5, a[16])),
-              (R = d(R, C, O, q, A, 9, a[17])),
-              (q = d(q, R, C, O, I, 14, a[18])),
-              (O = d(O, q, R, C, _, 20, a[19])),
-              (C = d(C, O, q, R, T, 5, a[20])),
-              (R = d(R, C, O, q, U, 9, a[21])),
-              (q = d(q, R, C, O, W, 14, a[22])),
-              (O = d(O, q, R, C, S, 20, a[23])),
-              (C = d(C, O, q, R, D, 5, a[24])),
-              (R = d(R, C, O, q, z, 9, a[25])),
-              (q = d(q, R, C, O, b, 14, a[26])),
-              (O = d(O, q, R, C, k, 20, a[27])),
-              (C = d(C, O, q, R, $, 5, a[28])),
-              (R = d(R, C, O, q, x, 9, a[29])),
-              (q = d(q, R, C, O, E, 14, a[30])),
-              (O = d(O, q, R, C, N, 20, a[31])),
-              (C = u(C, O, q, R, T, 4, a[32])),
-              (R = u(R, C, O, q, k, 11, a[33])),
-              (q = u(q, R, C, O, I, 16, a[34])),
-              (O = u(O, q, R, C, z, 23, a[35])),
-              (C = u(C, O, q, R, v, 4, a[36])),
-              (R = u(R, C, O, q, S, 11, a[37])),
-              (q = u(q, R, C, O, E, 16, a[38])),
-              (O = u(O, q, R, C, U, 23, a[39])),
-              (C = u(C, O, q, R, $, 4, a[40])),
-              (R = u(R, C, O, q, _, 11, a[41])),
-              (q = u(q, R, C, O, b, 16, a[42])),
-              (O = u(O, q, R, C, A, 23, a[43])),
-              (C = u(C, O, q, R, D, 4, a[44])),
-              (R = u(R, C, O, q, N, 11, a[45])),
-              (q = u(q, R, C, O, W, 16, a[46])),
-              (O = u(O, q, R, C, x, 23, a[47])),
-              (C = h(C, O, q, R, _, 6, a[48])),
-              (R = h(R, C, O, q, E, 10, a[49])),
-              (q = h(q, R, C, O, z, 15, a[50])),
-              (O = h(O, q, R, C, T, 21, a[51])),
-              (C = h(C, O, q, R, N, 6, a[52])),
-              (R = h(R, C, O, q, b, 10, a[53])),
-              (q = h(q, R, C, O, U, 15, a[54])),
-              (O = h(O, q, R, C, v, 21, a[55])),
-              (C = h(C, O, q, R, k, 6, a[56])),
-              (R = h(R, C, O, q, W, 10, a[57])),
-              (q = h(q, R, C, O, A, 15, a[58])),
-              (O = h(O, q, R, C, $, 21, a[59])),
-              (C = h(C, O, q, R, S, 6, a[60])),
-              (R = h(R, C, O, q, I, 10, a[61])),
-              (q = h(q, R, C, O, x, 15, a[62])),
-              (O = h(O, q, R, C, D, 21, a[63])),
-              (g[0] = (g[0] + C) | 0),
+            ;((E = c(E, O, q, R, _, 7, a[0])),
+              (R = c(R, E, O, q, v, 12, a[1])),
+              (q = c(q, R, E, O, x, 17, a[2])),
+              (O = c(O, q, R, E, b, 22, a[3])),
+              (E = c(E, O, q, R, S, 7, a[4])),
+              (R = c(R, E, O, q, T, 12, a[5])),
+              (q = c(q, R, E, O, A, 17, a[6])),
+              (O = c(O, q, R, E, C, 22, a[7])),
+              (E = c(E, O, q, R, k, 7, a[8])),
+              (R = c(R, E, O, q, D, 12, a[9])),
+              (q = c(q, R, E, O, U, 17, a[10])),
+              (O = c(O, q, R, E, I, 22, a[11])),
+              (E = c(E, O, q, R, N, 7, a[12])),
+              (R = c(R, E, O, q, $, 12, a[13])),
+              (q = c(q, R, E, O, z, 17, a[14])),
+              (O = c(O, q, R, E, W, 22, a[15])),
+              (E = d(E, O, q, R, v, 5, a[16])),
+              (R = d(R, E, O, q, A, 9, a[17])),
+              (q = d(q, R, E, O, I, 14, a[18])),
+              (O = d(O, q, R, E, _, 20, a[19])),
+              (E = d(E, O, q, R, T, 5, a[20])),
+              (R = d(R, E, O, q, U, 9, a[21])),
+              (q = d(q, R, E, O, W, 14, a[22])),
+              (O = d(O, q, R, E, S, 20, a[23])),
+              (E = d(E, O, q, R, D, 5, a[24])),
+              (R = d(R, E, O, q, z, 9, a[25])),
+              (q = d(q, R, E, O, b, 14, a[26])),
+              (O = d(O, q, R, E, k, 20, a[27])),
+              (E = d(E, O, q, R, $, 5, a[28])),
+              (R = d(R, E, O, q, x, 9, a[29])),
+              (q = d(q, R, E, O, C, 14, a[30])),
+              (O = d(O, q, R, E, N, 20, a[31])),
+              (E = u(E, O, q, R, T, 4, a[32])),
+              (R = u(R, E, O, q, k, 11, a[33])),
+              (q = u(q, R, E, O, I, 16, a[34])),
+              (O = u(O, q, R, E, z, 23, a[35])),
+              (E = u(E, O, q, R, v, 4, a[36])),
+              (R = u(R, E, O, q, S, 11, a[37])),
+              (q = u(q, R, E, O, C, 16, a[38])),
+              (O = u(O, q, R, E, U, 23, a[39])),
+              (E = u(E, O, q, R, $, 4, a[40])),
+              (R = u(R, E, O, q, _, 11, a[41])),
+              (q = u(q, R, E, O, b, 16, a[42])),
+              (O = u(O, q, R, E, A, 23, a[43])),
+              (E = u(E, O, q, R, D, 4, a[44])),
+              (R = u(R, E, O, q, N, 11, a[45])),
+              (q = u(q, R, E, O, W, 16, a[46])),
+              (O = u(O, q, R, E, x, 23, a[47])),
+              (E = h(E, O, q, R, _, 6, a[48])),
+              (R = h(R, E, O, q, C, 10, a[49])),
+              (q = h(q, R, E, O, z, 15, a[50])),
+              (O = h(O, q, R, E, T, 21, a[51])),
+              (E = h(E, O, q, R, N, 6, a[52])),
+              (R = h(R, E, O, q, b, 10, a[53])),
+              (q = h(q, R, E, O, U, 15, a[54])),
+              (O = h(O, q, R, E, v, 21, a[55])),
+              (E = h(E, O, q, R, k, 6, a[56])),
+              (R = h(R, E, O, q, W, 10, a[57])),
+              (q = h(q, R, E, O, A, 15, a[58])),
+              (O = h(O, q, R, E, $, 21, a[59])),
+              (E = h(E, O, q, R, S, 6, a[60])),
+              (R = h(R, E, O, q, I, 10, a[61])),
+              (q = h(q, R, E, O, x, 15, a[62])),
+              (O = h(O, q, R, E, D, 21, a[63])),
+              (g[0] = (g[0] + E) | 0),
               (g[1] = (g[1] + O) | 0),
               (g[2] = (g[2] + q) | 0),
               (g[3] = (g[3] + R) | 0))
@@ -3608,11 +3608,11 @@ var Zs = K((Xs, bh) => {
                       ((S << 14) | (S >>> 18)) ^
                       (S >>> 3),
                     A = c[b - 2],
-                    E =
+                    C =
                       ((A << 15) | (A >>> 17)) ^
                       ((A << 13) | (A >>> 19)) ^
                       (A >>> 10)
-                  c[b] = T + c[b - 7] + E + c[b - 16]
+                  c[b] = T + c[b - 7] + C + c[b - 16]
                 }
                 var k = (g & _) ^ (~g & v),
                   D = (f & y) ^ (f & w) ^ (y & w),
@@ -3837,7 +3837,7 @@ var _c = K((tn, Sh) => {
                 S = y.high,
                 T = y.low,
                 A = w.high,
-                E = w.low,
+                C = w.low,
                 k = m.high,
                 D = m.low,
                 U = g.high,
@@ -3846,38 +3846,38 @@ var _c = K((tn, Sh) => {
                 $ = _.low,
                 z = v.high,
                 W = v.low,
-                C = x.high,
+                E = x.high,
                 O = x.low,
                 q = b.high,
                 R = b.low,
                 Z = S,
                 Q = T,
                 Ce = A,
-                G = E,
+                G = C,
                 ii = k,
                 Sr = D,
                 $l = U,
                 si = I,
-                Xe = N,
+                Ze = N,
                 qe = $,
                 ss = z,
                 ni = W,
-                ns = C,
+                ns = E,
                 oi = O,
                 Ll = q,
                 ai = R,
-                Ze = 0;
-              Ze < 80;
-              Ze++
+                et = 0;
+              et < 80;
+              et++
             ) {
               var Ge,
                 Ft,
-                os = d[Ze]
-              if (Ze < 16)
-                ((Ft = os.high = h[p + Ze * 2] | 0),
-                  (Ge = os.low = h[p + Ze * 2 + 1] | 0))
+                os = d[et]
+              if (et < 16)
+                ((Ft = os.high = h[p + et * 2] | 0),
+                  (Ge = os.low = h[p + et * 2 + 1] | 0))
               else {
-                var Iu = d[Ze - 15],
+                var Iu = d[et - 15],
                   Tr = Iu.high,
                   li = Iu.low,
                   X_ =
@@ -3888,7 +3888,7 @@ var _c = K((tn, Sh) => {
                     ((li >>> 1) | (Tr << 31)) ^
                     ((li >>> 8) | (Tr << 24)) ^
                     ((li >>> 7) | (Tr << 25)),
-                  Cu = d[Ze - 2],
+                  Cu = d[et - 2],
                   Ar = Cu.high,
                   ci = Cu.low,
                   Z_ =
@@ -3899,10 +3899,10 @@ var _c = K((tn, Sh) => {
                     ((ci >>> 19) | (Ar << 13)) ^
                     ((ci << 3) | (Ar >>> 29)) ^
                     ((ci >>> 6) | (Ar << 26)),
-                  Fu = d[Ze - 7],
+                  Fu = d[et - 7],
                   ev = Fu.high,
                   tv = Fu.low,
-                  Ru = d[Ze - 16],
+                  Ru = d[et - 16],
                   rv = Ru.high,
                   Uu = Ru.low
                 ;((Ge = Du + tv),
@@ -3914,7 +3914,7 @@ var _c = K((tn, Sh) => {
                   (os.high = Ft),
                   (os.low = Ge))
               }
-              var iv = (Xe & ss) ^ (~Xe & ns),
+              var iv = (Ze & ss) ^ (~Ze & ns),
                 Bu = (qe & ni) ^ (~qe & oi),
                 sv = (Z & Ce) ^ (Z & ii) ^ (Ce & ii),
                 nv = (Q & G) ^ (Q & Sr) ^ (G & Sr),
@@ -3927,14 +3927,14 @@ var _c = K((tn, Sh) => {
                   ((Q << 30) | (Z >>> 2)) ^
                   ((Q << 25) | (Z >>> 7)),
                 av =
-                  ((Xe >>> 14) | (qe << 18)) ^
-                  ((Xe >>> 18) | (qe << 14)) ^
-                  ((Xe << 23) | (qe >>> 9)),
+                  ((Ze >>> 14) | (qe << 18)) ^
+                  ((Ze >>> 18) | (qe << 14)) ^
+                  ((Ze << 23) | (qe >>> 9)),
                 lv =
-                  ((qe >>> 14) | (Xe << 18)) ^
-                  ((qe >>> 18) | (Xe << 14)) ^
-                  ((qe << 23) | (Xe >>> 9)),
-                qu = c[Ze],
+                  ((qe >>> 14) | (Ze << 18)) ^
+                  ((qe >>> 18) | (Ze << 14)) ^
+                  ((qe << 23) | (Ze >>> 9)),
+                qu = c[et],
                 cv = qu.high,
                 $u = qu.low,
                 $e = ai + lv,
@@ -3951,10 +3951,10 @@ var _c = K((tn, Sh) => {
                 (ai = oi),
                 (ns = ss),
                 (oi = ni),
-                (ss = Xe),
+                (ss = Ze),
                 (ni = qe),
                 (qe = (si + $e) | 0),
-                (Xe = ($l + Rt + (qe >>> 0 < si >>> 0 ? 1 : 0)) | 0),
+                (Ze = ($l + Rt + (qe >>> 0 < si >>> 0 ? 1 : 0)) | 0),
                 ($l = ii),
                 (si = Sr),
                 (ii = Ce),
@@ -3966,18 +3966,18 @@ var _c = K((tn, Sh) => {
             }
             ;((T = y.low = T + Q),
               (y.high = S + Z + (T >>> 0 < Q >>> 0 ? 1 : 0)),
-              (E = w.low = E + G),
-              (w.high = A + Ce + (E >>> 0 < G >>> 0 ? 1 : 0)),
+              (C = w.low = C + G),
+              (w.high = A + Ce + (C >>> 0 < G >>> 0 ? 1 : 0)),
               (D = m.low = D + Sr),
               (m.high = k + ii + (D >>> 0 < Sr >>> 0 ? 1 : 0)),
               (I = g.low = I + si),
               (g.high = U + $l + (I >>> 0 < si >>> 0 ? 1 : 0)),
               ($ = _.low = $ + qe),
-              (_.high = N + Xe + ($ >>> 0 < qe >>> 0 ? 1 : 0)),
+              (_.high = N + Ze + ($ >>> 0 < qe >>> 0 ? 1 : 0)),
               (W = v.low = W + ni),
               (v.high = z + ss + (W >>> 0 < ni >>> 0 ? 1 : 0)),
               (O = x.low = O + oi),
-              (x.high = C + ns + (O >>> 0 < oi >>> 0 ? 1 : 0)),
+              (x.high = E + ns + (O >>> 0 < oi >>> 0 ? 1 : 0)),
               (R = b.low = R + ai),
               (b.high = q + Ll + (R >>> 0 < ai >>> 0 ? 1 : 0)))
           },
@@ -4119,8 +4119,8 @@ var Dh = K((sn, Ih) => {
             }
             for (var b = 0; b < 24; b++) {
               for (var S = 0; S < 5; S++) {
-                for (var T = 0, A = 0, E = 0; E < 5; E++) {
-                  var x = w[S + 5 * E]
+                for (var T = 0, A = 0, C = 0; C < 5; C++) {
+                  var x = w[S + 5 * C]
                   ;((T ^= x.high), (A ^= x.low))
                 }
                 var k = h[S]
@@ -4134,11 +4134,11 @@ var Dh = K((sn, Ih) => {
                     N = U.low,
                     T = D.high ^ ((I << 1) | (N >>> 31)),
                     A = D.low ^ ((N << 1) | (I >>> 31)),
-                    E = 0;
-                  E < 5;
-                  E++
+                    C = 0;
+                  C < 5;
+                  C++
                 ) {
-                  var x = w[S + 5 * E]
+                  var x = w[S + 5 * C]
                   ;((x.high ^= T), (x.low ^= A))
                 }
               for (var $ = 1; $ < 25; $++) {
@@ -4147,12 +4147,12 @@ var Dh = K((sn, Ih) => {
                   x = w[$],
                   z = x.high,
                   W = x.low,
-                  C = c[$]
-                C < 32
-                  ? ((T = (z << C) | (W >>> (32 - C))),
-                    (A = (W << C) | (z >>> (32 - C))))
-                  : ((T = (W << (C - 32)) | (z >>> (64 - C))),
-                    (A = (z << (C - 32)) | (W >>> (64 - C))))
+                  E = c[$]
+                E < 32
+                  ? ((T = (z << E) | (W >>> (32 - E))),
+                    (A = (W << E) | (z >>> (32 - E))))
+                  : ((T = (W << (E - 32)) | (z >>> (64 - E))),
+                    (A = (z << (E - 32)) | (W >>> (64 - E))))
                 var O = h[d[$]]
                 ;((O.high = T), (O.low = A))
               }
@@ -4160,12 +4160,12 @@ var Dh = K((sn, Ih) => {
                 R = w[0]
               ;((q.high = R.high), (q.low = R.low))
               for (var S = 0; S < 5; S++)
-                for (var E = 0; E < 5; E++) {
-                  var $ = S + 5 * E,
+                for (var C = 0; C < 5; C++) {
+                  var $ = S + 5 * C,
                     x = w[$],
                     Z = h[$],
-                    Q = h[((S + 1) % 5) + 5 * E],
-                    Ce = h[((S + 2) % 5) + 5 * E]
+                    Q = h[((S + 1) % 5) + 5 * C],
+                    Ce = h[((S + 2) % 5) + 5 * C]
                   ;((x.high = Z.high ^ (~Q.high & Ce.high)),
                     (x.low = Z.low ^ (~Q.low & Ce.low)))
                 }
@@ -4195,14 +4195,14 @@ var Dh = K((sn, Ih) => {
             ) {
               var T = _[S],
                 A = T.high,
-                E = T.low
+                C = T.low
               ;((A =
                 (((A << 8) | (A >>> 24)) & 16711935) |
                 (((A << 24) | (A >>> 8)) & 4278255360)),
-                (E =
-                  (((E << 8) | (E >>> 24)) & 16711935) |
-                  (((E << 24) | (E >>> 8)) & 4278255360)),
-                b.push(E),
+                (C =
+                  (((C << 8) | (C >>> 24)) & 16711935) |
+                  (((C << 24) | (C >>> 8)) & 4278255360)),
+                b.push(C),
                 b.push(A))
             }
             return new i.init(b, v)
@@ -4283,7 +4283,7 @@ var Eh = K((nn, Ch) => {
                   (((T << 24) | (T >>> 8)) & 4278255360)
               }
               var A = this._hash.words,
-                E = u.words,
+                C = u.words,
                 k = h.words,
                 D = a.words,
                 U = l.words,
@@ -4292,7 +4292,7 @@ var Eh = K((nn, Ch) => {
                 $,
                 z,
                 W,
-                C,
+                E,
                 O,
                 q,
                 R,
@@ -4302,25 +4302,25 @@ var Eh = K((nn, Ch) => {
               ;((q = $ = A[0]),
                 (R = z = A[1]),
                 (Z = W = A[2]),
-                (Q = C = A[3]),
+                (Q = E = A[3]),
                 (Ce = O = A[4]))
               for (var G, b = 0; b < 80; b += 1)
                 ((G = ($ + v[x + D[b]]) | 0),
                   b < 16
-                    ? (G += f(z, W, C) + E[0])
+                    ? (G += f(z, W, E) + C[0])
                     : b < 32
-                      ? (G += y(z, W, C) + E[1])
+                      ? (G += y(z, W, E) + C[1])
                       : b < 48
-                        ? (G += w(z, W, C) + E[2])
+                        ? (G += w(z, W, E) + C[2])
                         : b < 64
-                          ? (G += m(z, W, C) + E[3])
-                          : (G += g(z, W, C) + E[4]),
+                          ? (G += m(z, W, E) + C[3])
+                          : (G += g(z, W, E) + C[4]),
                   (G = G | 0),
                   (G = _(G, I[b])),
                   (G = (G + O) | 0),
                   ($ = O),
-                  (O = C),
-                  (C = _(W, 10)),
+                  (O = E),
+                  (E = _(W, 10)),
                   (W = z),
                   (z = G),
                   (G = (q + v[x + U[b]]) | 0),
@@ -4342,7 +4342,7 @@ var Eh = K((nn, Ch) => {
                   (Z = R),
                   (R = G))
               ;((G = (A[1] + W + Q) | 0),
-                (A[1] = (A[2] + C + Ce) | 0),
+                (A[1] = (A[2] + E + Ce) | 0),
                 (A[2] = (A[3] + O + q) | 0),
                 (A[3] = (A[4] + $ + R) | 0),
                 (A[4] = (A[0] + z + Z) | 0),
@@ -4359,9 +4359,9 @@ var Eh = K((nn, Ch) => {
                   (((b << 24) | (b >>> 8)) & 4278255360)),
                 (v.sigBytes = (x.length + 1) * 4),
                 this._process())
-              for (var T = this._hash, A = T.words, E = 0; E < 5; E++) {
-                var k = A[E]
-                A[E] =
+              for (var T = this._hash, A = T.words, C = 0; C < 5; C++) {
+                var k = A[C]
+                A[C] =
                   (((k << 8) | (k >>> 24)) & 16711935) |
                   (((k << 24) | (k >>> 8)) & 4278255360)
               }
@@ -4600,7 +4600,7 @@ var le = K((dn, Oh) => {
             _DEC_XFORM_MODE: 2,
             _createHelper: (function () {
               function k(D) {
-                return typeof D == "string" ? E : S
+                return typeof D == "string" ? C : S
               }
               return function (D) {
                 return {
@@ -4789,7 +4789,7 @@ var le = K((dn, Oh) => {
               )
             },
           }),
-          E = (r.PasswordBasedCipher = S.extend({
+          C = (r.PasswordBasedCipher = S.extend({
             cfg: S.cfg.extend({ kdf: A }),
             encrypt: function (k, D, U, I) {
               I = this.cfg.extend(I)
@@ -5217,13 +5217,13 @@ var af = K((bn, of) => {
                             n[m & 255]),
                           (m ^= y[(T / v) | 0] << 24)),
                       (S[T] = S[T - v] ^ m))
-                for (var A = (this._invKeySchedule = []), E = 0; E < b; E++) {
-                  var T = b - E
-                  if (E % 4) var m = S[T]
+                for (var A = (this._invKeySchedule = []), C = 0; C < b; C++) {
+                  var T = b - C
+                  if (C % 4) var m = S[T]
                   else var m = S[T - 4]
-                  E < 4 || T <= 4
-                    ? (A[E] = m)
-                    : (A[E] =
+                  C < 4 || T <= 4
+                    ? (A[C] = m)
+                    : (A[C] =
                         u[n[m >>> 24]] ^
                         h[n[(m >>> 16) & 255]] ^
                         p[n[(m >>> 8) & 255]] ^
@@ -5245,7 +5245,7 @@ var af = K((bn, of) => {
             _doCryptBlock: function (m, g, _, v, x, b, S, T) {
               for (
                 var A = this._nRounds,
-                  E = m[g] ^ _[0],
+                  C = m[g] ^ _[0],
                   k = m[g + 1] ^ _[1],
                   D = m[g + 2] ^ _[2],
                   U = m[g + 3] ^ _[3],
@@ -5255,7 +5255,7 @@ var af = K((bn, of) => {
                 N++
               ) {
                 var $ =
-                    v[E >>> 24] ^
+                    v[C >>> 24] ^
                     x[(k >>> 16) & 255] ^
                     b[(D >>> 8) & 255] ^
                     S[U & 255] ^
@@ -5264,24 +5264,24 @@ var af = K((bn, of) => {
                     v[k >>> 24] ^
                     x[(D >>> 16) & 255] ^
                     b[(U >>> 8) & 255] ^
-                    S[E & 255] ^
+                    S[C & 255] ^
                     _[I++],
                   W =
                     v[D >>> 24] ^
                     x[(U >>> 16) & 255] ^
-                    b[(E >>> 8) & 255] ^
+                    b[(C >>> 8) & 255] ^
                     S[k & 255] ^
                     _[I++],
-                  C =
+                  E =
                     v[U >>> 24] ^
-                    x[(E >>> 16) & 255] ^
+                    x[(C >>> 16) & 255] ^
                     b[(k >>> 8) & 255] ^
                     S[D & 255] ^
                     _[I++]
-                ;((E = $), (k = z), (D = W), (U = C))
+                ;((C = $), (k = z), (D = W), (U = E))
               }
               var $ =
-                  ((T[E >>> 24] << 24) |
+                  ((T[C >>> 24] << 24) |
                     (T[(k >>> 16) & 255] << 16) |
                     (T[(D >>> 8) & 255] << 8) |
                     T[U & 255]) ^
@@ -5290,21 +5290,21 @@ var af = K((bn, of) => {
                   ((T[k >>> 24] << 24) |
                     (T[(D >>> 16) & 255] << 16) |
                     (T[(U >>> 8) & 255] << 8) |
-                    T[E & 255]) ^
+                    T[C & 255]) ^
                   _[I++],
                 W =
                   ((T[D >>> 24] << 24) |
                     (T[(U >>> 16) & 255] << 16) |
-                    (T[(E >>> 8) & 255] << 8) |
+                    (T[(C >>> 8) & 255] << 8) |
                     T[k & 255]) ^
                   _[I++],
-                C =
+                E =
                   ((T[U >>> 24] << 24) |
-                    (T[(E >>> 16) & 255] << 16) |
+                    (T[(C >>> 16) & 255] << 16) |
                     (T[(k >>> 8) & 255] << 8) |
                     T[D & 255]) ^
                   _[I++]
-              ;((m[g] = $), (m[g + 1] = z), (m[g + 2] = W), (m[g + 3] = C))
+              ;((m[g] = $), (m[g + 1] = z), (m[g + 2] = W), (m[g + 3] = E))
             },
             keySize: 256 / 32,
           }))
@@ -8422,7 +8422,7 @@ var pi = Object.create(null),
             }
             let [S, T, A] = x
             if (!u && !(A instanceof RegExp)) continue
-            let E = m.#e[S]
+            let C = m.#e[S]
             if (A instanceof RegExp) {
               if (c === null) {
                 c = new Array(l)
@@ -8434,15 +8434,15 @@ var pi = Object.create(null),
               if (D) {
                 if (
                   ((b[T] = D[0]),
-                  this.#s(r, E, e, m.#i, b),
+                  this.#s(r, C, e, m.#i, b),
                   D[0].length === k.length &&
-                    E.#e["*"] &&
-                    this.#s(r, E.#e["*"], e, m.#i, b),
-                  Cv(E.#e))
+                    C.#e["*"] &&
+                    this.#s(r, C.#e["*"], e, m.#i, b),
+                  Cv(C.#e))
                 ) {
-                  E.#i = b
+                  C.#i = b
                   let U = D[0].match(/\//)?.length ?? 0
-                  ;(a[U] ||= []).push(E)
+                  ;(a[U] ||= []).push(C)
                 }
                 continue
               }
@@ -8450,9 +8450,9 @@ var pi = Object.create(null),
             ;(A === !0 || A.test(u)) &&
               ((b[T] = u),
               h
-                ? (this.#s(r, E, e, b, m.#i),
-                  E.#e["*"] && this.#s(r, E.#e["*"], e, b, m.#i))
-                : ((E.#i = b), p.push(E)))
+                ? (this.#s(r, C, e, b, m.#i),
+                  C.#e["*"] && this.#s(r, C.#e["*"], e, b, m.#i))
+                : ((C.#i = b), p.push(C)))
           }
         }
         let f = a.shift()
@@ -11209,10 +11209,10 @@ var $s = class {
             for (;;) {
               let A = b++
               if (A >= v.length) return
-              let E = v[A]
-              if (E < 0) continue
-              let k = E * h,
-                D = E + 1 === p ? f : h,
+              let C = v[A]
+              if (C < 0) continue
+              let k = C * h,
+                D = C + 1 === p ? f : h,
                 U = r.subarray(k, k + D),
                 I = {
                   method: "upload",
@@ -11220,7 +11220,7 @@ var $s = class {
                   type: "tmpfile",
                   path: n,
                   uploadid: m.uploadid,
-                  partseq: String(E),
+                  partseq: String(C),
                 },
                 N = !1
               for (let $ = 0; $ < xi; $++)
@@ -11239,7 +11239,7 @@ var $s = class {
                   if (z instanceof Rr) throw z
                   $ < xi - 1 && (await Nx(Math.min(yc * Math.pow(2, $), nh)))
                 }
-              if (!N) throw ((x = !0), new Error(`upload slice ${E} failed`))
+              if (!N) throw ((x = !0), new Error(`upload slice ${C} failed`))
             }
           }
         try {
@@ -11247,9 +11247,9 @@ var $s = class {
             throw new Error("upload slice failed")
         } catch (A) {
           if (A instanceof Rr) {
-            let E = await this.client.precreate(n, i, w, "", "", c, l)
-            if (E.return_type === 2 && E.info) return
-            m = E
+            let C = await this.client.precreate(n, i, w, "", "", c, l)
+            if (C.return_type === 2 && C.info) return
+            m = C
             continue
           }
           throw A
@@ -11266,19 +11266,19 @@ function ah(s) {
   return e <= 0 ? "/" : s.slice(0, e)
 }
 L()
-var rt = "https://proapi.115.com",
+var it = "https://proapi.115.com",
   jx = "https://passportapi.115.com",
-  Mx = rt + "/open/upload/get_token",
-  zx = rt + "/open/upload/init",
-  Hx = rt + "/open/folder/add",
-  Gx = rt + "/open/ufile/files",
-  lh = rt + "/open/folder/get_info",
-  Wx = rt + "/open/ufile/copy",
-  Kx = rt + "/open/ufile/move",
-  Vx = rt + "/open/ufile/downurl",
-  Jx = rt + "/open/ufile/update",
-  Yx = rt + "/open/ufile/delete",
-  Qx = rt + "/open/user/info",
+  Mx = it + "/open/upload/get_token",
+  zx = it + "/open/upload/init",
+  Hx = it + "/open/folder/add",
+  Gx = it + "/open/ufile/files",
+  lh = it + "/open/folder/get_info",
+  Wx = it + "/open/ufile/copy",
+  Kx = it + "/open/ufile/move",
+  Vx = it + "/open/ufile/downurl",
+  Jx = it + "/open/ufile/update",
+  Yx = it + "/open/ufile/delete",
+  Qx = it + "/open/user/info",
   Xx = jx + "/open/refreshToken"
 function Zx(s) {
   return s === 99 || String(s).startsWith("401")
@@ -12412,11 +12412,11 @@ var zs = class {
             _,
             this.addition.ref,
           ),
-          E = T.tree.find((U) => U.path === v),
+          C = T.tree.find((U) => U.path === v),
           k = T.tree.find((U) => U.path === x)
-        if (!E || !k) throw new Error("Ancestor child tree not found")
+        if (!C || !k) throw new Error("Ancestor child tree not found")
         let D = await this.client.newTree(A, [
-          { path: E.path, mode: E.mode, type: E.type, sha: S },
+          { path: C.path, mode: C.mode, type: C.type, sha: S },
           { path: k.path, mode: k.mode, type: k.type, sha: b },
         ])
         l = await this.client.renewParentTrees(_, A, D, "/", this.addition.ref)
@@ -20693,7 +20693,7 @@ function ur(s) {
     return String(s)
   }
 }
-function it(s) {
+function st(s) {
   return (s || "").split("/").filter(Boolean).join("/")
 }
 var bo = class {
@@ -20869,12 +20869,12 @@ var ko = class {
     await this.client.getToken()
   }
   async list(e, t) {
-    let r = it(t),
+    let r = st(t),
       n = (await this.client.listPath(r)).map(Hm)
     return B(n, "name", "asc")
   }
   async get(e, t) {
-    let r = it(t)
+    let r = st(t)
     if (!r)
       return {
         name: "root",
@@ -20898,33 +20898,33 @@ var ko = class {
     )
   }
   async mkdir(e, t) {
-    await this.client.makeDir(it(t))
+    await this.client.makeDir(st(t))
   }
   async rename(e, t, r) {
-    await this.client.rename(it(t), r)
+    await this.client.rename(st(t), r)
   }
   async remove(e, t, r) {
-    let i = it(t),
+    let i = st(t),
       n = i.split("/"),
       o = n[n.length - 1]
     await this.client.remove(i, o)
   }
   async move(e, t, r, i, n) {
-    let o = it(i),
+    let o = st(i),
       a = o.split("/"),
       l = a[a.length - 1],
-      c = it(n).split("/").slice(0, -1).join("/")
+      c = st(n).split("/").slice(0, -1).join("/")
     await this.client.move(o, l, c)
   }
   async copy(e, t, r, i, n) {
-    let o = it(i),
+    let o = st(i),
       a = o.split("/"),
       l = a[a.length - 1],
-      c = it(n).split("/").slice(0, -1).join("/")
+      c = st(n).split("/").slice(0, -1).join("/")
     await this.client.copy(o, l, c)
   }
   async put(e, t, r) {
-    let n = it(t).split("/"),
+    let n = st(t).split("/"),
       o = n.pop()
     if (!o) throw new Error("[KodBox] put: empty file name")
     let a = n.join("/")
@@ -22390,7 +22390,7 @@ var qo = class {
     await this.finishUploadSession(e, o, r)
   }
 }
-function st(s) {
+function nt(s) {
   let e = String(s || "")
     .split("/")
     .filter(Boolean)
@@ -22429,13 +22429,13 @@ var $o = class {
     await this.client.init()
   }
   async list(e, t) {
-    let r = await this.client.getFiles(st(t))
+    let r = await this.client.getFiles(nt(t))
     for (let n of r) n.path_display && this.fileCache.set(n.path_display, n)
     let i = r.map(lg)
     return B(i, this.addition.order_by, this.addition.order_direction)
   }
   async get(e, t) {
-    let r = st(t),
+    let r = nt(t),
       i = r.split("/").filter(Boolean),
       n = i[i.length - 1] || "root",
       o = await this.resolveFile(t)
@@ -22459,7 +22459,7 @@ var $o = class {
     return a
   }
   async resolveFile(e) {
-    let t = st(e)
+    let t = nt(e)
     if (!t) return null
     let r = this.fileCache.get(t)
     if (r) return r
@@ -22472,10 +22472,10 @@ var $o = class {
     return a
   }
   async mkdir(e, t) {
-    ;(await this.client.makeDir(st(t)), this.fileCache.clear())
+    ;(await this.client.makeDir(nt(t)), this.fileCache.clear())
   }
   async rename(e, t, r) {
-    let i = st(t),
+    let i = nt(t),
       n = await this.resolveFile(t)
     if (!n) throw new Error(`[Dropbox] file not found: ${t}`)
     let o = ag(i),
@@ -22483,7 +22483,7 @@ var $o = class {
     ;(await this.client.move(n.id || i, a), this.fileCache.clear())
   }
   async remove(e, t, r) {
-    let i = st(t),
+    let i = nt(t),
       n = await this.resolveFile(t)
     if (!n) throw new Error(`[Dropbox] file not found: ${t}`)
     ;(await this.client.remove(n.id || i), this.fileCache.clear())
@@ -22491,16 +22491,16 @@ var $o = class {
   async move(e, t, r, i, n) {
     let o = await this.resolveFile(i)
     if (!o) throw new Error(`[Dropbox] file not found: ${i}`)
-    ;(await this.client.move(o.id || st(i), st(n)), this.fileCache.clear())
+    ;(await this.client.move(o.id || nt(i), nt(n)), this.fileCache.clear())
   }
   async copy(e, t, r, i, n) {
     let o = await this.resolveFile(i)
     if (!o) throw new Error(`[Dropbox] file not found: ${i}`)
-    ;(await this.client.copy(o.id || st(i), st(n)), this.fileCache.clear())
+    ;(await this.client.copy(o.id || nt(i), nt(n)), this.fileCache.clear())
   }
   async put(e, t, r) {
     let i = new Uint8Array(r)
-    ;(await this.client.uploadFile(st(t), i), this.fileCache.clear())
+    ;(await this.client.uploadFile(nt(t), i), this.fileCache.clear())
   }
 }
 L()
@@ -26042,7 +26042,7 @@ var nP = "storage.bunnycdn.com",
   aP = "hmac_sha256",
   Lg = 3e4,
   lP = 3e5
-function nt(s) {
+function ot(s) {
   if (!s) return "/"
   let e = "/" + s.replace(/^\/+/, ""),
     t = []
@@ -26057,23 +26057,23 @@ function nt(s) {
   return "/" + t.join("/")
 }
 function zg(s, e) {
-  let t = nt(s),
-    r = nt(e)
+  let t = ot(s),
+    r = ot(e)
   return r === "/"
     ? { path: t, ok: !1 }
     : t === r
       ? { path: "/", ok: !0 }
       : t.startsWith(r + "/")
-        ? { path: nt(t.slice(r.length)), ok: !0 }
+        ? { path: ot(t.slice(r.length)), ok: !0 }
         : { path: t, ok: !1 }
 }
 function cP(s, e) {
-  let t = nt(s),
-    r = nt(e)
+  let t = ot(s),
+    r = ot(e)
   return t === r || t.startsWith(r + "/")
 }
 function dP(s, e) {
-  let t = nt(s)
+  let t = ot(s)
   if (t === "/") return ""
   let r = zg(t, e)
   return (r.ok && (t = r.path), t === "/" ? "" : t.replace(/\/+$/, ""))
@@ -26164,7 +26164,7 @@ var pa = class {
   }
   storageURL(e, t) {
     let r = new URL(this.endpoint.toString()),
-      i = nt(e),
+      i = ot(e),
       n = (this.addition.storage_zone_name || "").replace(/^\/+|\/+$/g, "")
     return (
       (r.pathname = "/" + n + "/" + i.replace(/^\//, "")),
@@ -26176,19 +26176,19 @@ var pa = class {
     if (!this.cdnBase)
       throw new Error("[BunnyStorage] cdn_base_url is not configured")
     let t = new URL(this.cdnBase.toString()),
-      r = nt(e),
+      r = ot(e),
       i = dP(this.cdnBase.pathname, this.mountPath)
     return r === "/"
       ? ((t.pathname = i === "" ? "/" : i + "/"), t.toString())
       : ((t.pathname = i + "/" + r.replace(/^\//, "")), t.toString())
   }
   cdnObjectPath(e) {
-    let t = nt(e),
+    let t = ot(e),
       r = zg(t, this.mountPath)
     r.ok && (t = r.path)
-    let i = nt(this.rootFolderPath)
+    let i = ot(this.rootFolderPath)
     return (
-      i !== "/" && !cP(t, i) && (t = nt(i + "/" + t.replace(/^\//, ""))),
+      i !== "/" && !cP(t, i) && (t = ot(i + "/" + t.replace(/^\//, ""))),
       t
     )
   }
@@ -26697,7 +26697,7 @@ var fa = class {
       S = b?.ListData?.Row || [],
       T = b?.ListData?.NextHref || ""
     if (T !== "") {
-      let E = `{"parameters":{"__metadata":{"type":"SP.RenderListDataParameters"},"RenderOptions":1216519,"ViewXml":"${(b?.ViewMetadata?.ListViewXml || "").split('"').join('\\"')}","AllowMultipleValueFilterForTaxonomyFields":true,"AddRequiredFields":true}}`
+      let C = `{"parameters":{"__metadata":{"type":"SP.RenderListDataParameters"},"RenderOptions":1216519,"ViewXml":"${(b?.ViewMetadata?.ListViewXml || "").split('"').join('\\"')}","AllowMultipleValueFilterForTaxonomyFields":true,"AddRequiredFields":true}}`
       for (; T !== ""; ) {
         let k = T + "&@a1=REPLACEME&TryNewExperienceSingle=TRUE"
         ;((k = k.split("REPLACEME").join("%27" + f + "%27")),
@@ -26708,7 +26708,7 @@ var fa = class {
         let D = await fetch(g, {
             method: "POST",
             headers: m,
-            body: E,
+            body: C,
             signal: AbortSignal.timeout(Ve),
           }),
           U = await D.text(),
@@ -33368,8 +33368,8 @@ async function ny(s) {
     T = [e.toUpperCase(), x, S, m, g, f].join(`
 `),
     A = `${p}/${r}/${c}/aws4_request`,
-    E = await kd(T),
-    k = ["AWS4-HMAC-SHA256", h, A, E].join(`
+    C = await kd(T),
+    k = ["AWS4-HMAC-SHA256", h, A, C].join(`
 `),
     D = await sy(n, p, r, c),
     U = await ry(D, k),
@@ -33418,10 +33418,10 @@ async function nl(s) {
     T = [e.toUpperCase(), m, _, x, "host", "UNSIGNED-PAYLOAD"].join(`
 `),
     A = await kd(T),
-    E = ["AWS4-HMAC-SHA256", h, f, A].join(`
+    C = ["AWS4-HMAC-SHA256", h, f, A].join(`
 `),
     k = await sy(n, p, r, l),
-    D = await ry(k, E)
+    D = await ry(k, C)
   return (u.searchParams.set("X-Amz-Signature", D), u.toString())
 }
 async function oy(s, e) {
@@ -33463,7 +33463,7 @@ function oe(...s) {
     .filter(Boolean)
     .join("/")
 }
-function ot(s, e = !1) {
+function Qe(s, e = !1) {
   let t = (s || "").replace(/^\/+/, "")
   return (t && e && !t.endsWith("/") && (t += "/"), t)
 }
@@ -33656,7 +33656,7 @@ var al = class {
   getUrl(e = "", t) {
     let r = new URL(this.endpoint),
       i = "",
-      n = e ? ot(e, !1) : ""
+      n = e ? Qe(e, !1) : ""
     if (this.isPathStyle) {
       let l = [r.pathname.replace(/\/+$/, ""), this.bucket, n]
         .filter(Boolean)
@@ -33696,7 +33696,7 @@ var al = class {
     )
   }
   async listObjects(e, t = "v1", r = !1) {
-    let i = ot(e, !0),
+    let i = Qe(e, !0),
       n = [],
       o = this.addition.placeholder || ""
     if (t === "v2") {
@@ -33749,7 +33749,7 @@ var al = class {
     return { size: i, modified: n, etag: o }
   }
   async listPrefixProbe(e, t = "v1") {
-    let i = { prefix: ot(e, !0), "max-keys": "1" }
+    let i = { prefix: Qe(e, !0), "max-keys": "1" }
     t === "v2" && (i["list-type"] = "2")
     let n = this.getUrl("", i),
       o = await this.fetch("GET", n)
@@ -33776,8 +33776,8 @@ var al = class {
   }
   async copyObject(e, t, r) {
     if (r !== void 0 && r > dT) return this.copyMultipart(e, t, r)
-    let i = ot(e, !1),
-      n = ot(t, !1),
+    let i = Qe(e, !1),
+      n = Qe(t, !1),
       o = Tt(`${this.bucket}/${i}`, !1),
       a = this.getUrl(n),
       l = { "x-amz-copy-source": o },
@@ -33788,8 +33788,8 @@ var al = class {
     }
   }
   async copyMultipart(e, t, r) {
-    let i = ot(e, !1),
-      n = ot(t, !1),
+    let i = Qe(e, !1),
+      n = Qe(t, !1),
       o = Tt(`${this.bucket}/${i}`, !1),
       a = this.getUrl(n, { uploads: "" }),
       l = await this.fetch("POST", a),
@@ -33835,9 +33835,14 @@ var al = class {
       throw (await this.fetch("DELETE", f).catch(() => {}), p)
     }
   }
+  async getObjectResponse(e, t = {}) {
+    let r = Qe(e, !1),
+      i = this.getUrl(r)
+    return await this.fetch("GET", i, null, t)
+  }
   async getLink(e, t, r = 4, i = "", n = !1, o = !1, a = !1) {
-    let l = ot(e, !1),
-      c = Math.max(60, Math.floor(r * 3600)),
+    let l = Qe(e, !1),
+      c = Math.min(86400, Math.max(60, Math.floor(r * 3600))),
       d = this.getUrl(l)
     if (i)
       if (n) {
@@ -33899,8 +33904,8 @@ var al = class {
   }
   async getDirectUploadInfo(e, t, r = 4, i = "") {
     let n = oe(e, t),
-      o = ot(n, !1),
-      a = Math.max(60, Math.floor(r * 3600)),
+      o = Qe(n, !1),
+      a = Math.min(86400, Math.max(60, Math.floor(r * 3600))),
       l = this.getUrl(o)
     if (i) {
       let d = new URL(l),
@@ -33999,7 +34004,7 @@ var ll = class {
   getRemotePath(e) {
     let t = this.addition.root_folder_path || "/",
       r = e || "/"
-    return (t !== "/" && !ay(t, r) && (r = oe(t, r)), ot(r, !1))
+    return (t !== "/" && !ay(t, r) && (r = oe(t, r)), Qe(r, !1))
   }
   async fileItemFromS3(e, t) {
     let r, i
@@ -34043,6 +34048,11 @@ var ll = class {
       this.addition.order_by || "name",
       this.addition.order_direction || "asc",
     )
+  }
+  async fetchObjectResponse(e, t, r = {}) {
+    await this.checkDogeToken()
+    let i = this.getRemotePath(t)
+    return await this.client.getObjectResponse(i, r)
   }
   async get(e, t) {
     await this.checkDogeToken()
@@ -34523,14 +34533,14 @@ Content-Type: application/octet-stream\r
         S = v.encode(_),
         T = n ? new Uint8Array(n) : new Uint8Array(0),
         A = x.length + b.length + T.length + S.length,
-        E = new Uint8Array(A),
+        C = new Uint8Array(A),
         k = 0
-      ;(E.set(x, k),
+      ;(C.set(x, k),
         (k += x.length),
         b.length > 0 &&
-          (E.set(b, k), (k += b.length), E.set(T, k), (k += T.length)),
-        E.set(S, k),
-        (c = E))
+          (C.set(b, k), (k += b.length), C.set(T, k), (k += T.length)),
+        C.set(S, k),
+        (c = C))
     } else
       ((l = `https://www.weiyun.com/webapp/json/${e}/${t}?g_tk=${encodeURIComponent(a)}&cmd=${r}`),
         (c = JSON.stringify({
@@ -36368,7 +36378,7 @@ function BT() {
 }
 async function OT(s) {
   try {
-    let { getKvBinding: e } = await Promise.resolve().then(() => (J(), tt)),
+    let { getKvBinding: e } = await Promise.resolve().then(() => (J(), rt)),
       t = await e(s)
     if (t.mode === "none" || !t.binding) return []
     let { binding: r, mode: i } = t,
@@ -36390,7 +36400,7 @@ async function OT(s) {
 }
 async function Ay(s) {
   try {
-    let { getKvBinding: e } = await Promise.resolve().then(() => (J(), tt)),
+    let { getKvBinding: e } = await Promise.resolve().then(() => (J(), rt)),
       t = await e(s)
     if (t.mode === "none" || !t.binding) return !1
     let { binding: r, mode: i } = t,
@@ -36740,7 +36750,7 @@ function YT() {
 }
 async function QT(s) {
   try {
-    let { getKvBinding: e } = await Promise.resolve().then(() => (J(), tt)),
+    let { getKvBinding: e } = await Promise.resolve().then(() => (J(), rt)),
       t = await e(s)
     if (t.mode === "none" || !t.binding) return null
     let { binding: r, mode: i } = t,
@@ -36762,7 +36772,7 @@ async function QT(s) {
 }
 async function XT(s, e) {
   try {
-    let { getKvBinding: t } = await Promise.resolve().then(() => (J(), tt)),
+    let { getKvBinding: t } = await Promise.resolve().then(() => (J(), rt)),
       r = await t(s)
     if (r.mode === "none" || !r.binding) return !1
     let { binding: i, mode: n } = r
@@ -36824,7 +36834,7 @@ async function ZT(s) {
   if (!dw) {
     dw = !0
     try {
-      let { getKvBinding: e } = await Promise.resolve().then(() => (J(), tt)),
+      let { getKvBinding: e } = await Promise.resolve().then(() => (J(), rt)),
         t = await e(s)
       if (t.mode === "none" || !t.binding) return
       let { binding: r, mode: i } = t,
@@ -36847,7 +36857,7 @@ async function uw(s, e, t) {
   if (s) {
     Yd.add(s)
     try {
-      let { getKvBinding: r } = await Promise.resolve().then(() => (J(), tt)),
+      let { getKvBinding: r } = await Promise.resolve().then(() => (J(), rt)),
         i = await r(t)
       if (i.mode === "none" || !i.binding) return
       let { binding: n, mode: o } = i,
@@ -36949,7 +36959,7 @@ async function eA(s) {
     return !1
   }
 }
-var Qe = Ir(Or(), 1)
+var Xe = Ir(Or(), 1)
 function Zi(s) {
   return (s || "").toLowerCase().replace(/_/g, "")
 }
@@ -37384,16 +37394,16 @@ function Tl(s) {
   return (s || []).map((e) => ({ ...e, path: at(e.path) }))
 }
 function hw(s, e) {
-  let t = Qe.default.AES.encrypt(JSON.stringify(s), e).toString()
-  return Qe.default.enc.Base64.stringify(Qe.default.enc.Utf8.parse(t))
+  let t = Xe.default.AES.encrypt(JSON.stringify(s), e).toString()
+  return Xe.default.enc.Base64.stringify(Xe.default.enc.Utf8.parse(t))
 }
 function cA(s, e) {
-  let t = Qe.default.enc.Base64.parse(s).toString(Qe.default.enc.Utf8)
-  return JSON.parse(Qe.default.AES.decrypt(t, e).toString(Qe.default.enc.Utf8))
+  let t = Xe.default.enc.Base64.parse(s).toString(Xe.default.enc.Utf8)
+  return JSON.parse(Xe.default.AES.decrypt(t, e).toString(Xe.default.enc.Utf8))
 }
 function dA(s, e) {
-  let t = Qe.default.enc.Base64.parse(s).toString(Qe.default.enc.Utf8)
-  return Qe.default.AES.decrypt(t, e).toString(Qe.default.enc.Utf8)
+  let t = Xe.default.enc.Base64.parse(s).toString(Xe.default.enc.Utf8)
+  return Xe.default.AES.decrypt(t, e).toString(Xe.default.enc.Utf8)
 }
 function Xd(s, e) {
   let t = { ...s, encrypted: hw("encrypted", e) }
@@ -38459,7 +38469,7 @@ async function Ow(s, e, t) {
   let r = Date.now(),
     i = gt.get(s) || { count: 0, lockedUntil: 0, attempts: 0 }
   try {
-    let { getKvBinding: n } = await Promise.resolve().then(() => (J(), tt)),
+    let { getKvBinding: n } = await Promise.resolve().then(() => (J(), rt)),
       o = await n(t)
     if (o.mode !== "none" && o.binding) {
       let a = `login_fail:${s}`,
@@ -38486,7 +38496,7 @@ async function Ow(s, e, t) {
     }
     gt.set(s, i)
     try {
-      let { getKvBinding: n } = await Promise.resolve().then(() => (J(), tt)),
+      let { getKvBinding: n } = await Promise.resolve().then(() => (J(), rt)),
         o = await n(t)
       if (o.mode !== "none" && o.binding) {
         let a = `login_fail:${s}`,
@@ -38511,7 +38521,7 @@ async function IA(s, e, t) {
     o = gt.get(i),
     a = gt.get(n)
   try {
-    let { getKvBinding: l } = await Promise.resolve().then(() => (J(), tt)),
+    let { getKvBinding: l } = await Promise.resolve().then(() => (J(), rt)),
       c = await l(t)
     if (c.mode !== "none" && c.binding)
       for (let d of [i, n]) {
@@ -38539,7 +38549,7 @@ async function CA(s, e, t) {
     i = cu(e)
   ;(gt.delete(r), gt.delete(i))
   try {
-    let { getKvBinding: n } = await Promise.resolve().then(() => (J(), tt)),
+    let { getKvBinding: n } = await Promise.resolve().then(() => (J(), rt)),
       o = await n(t)
     if (o.mode !== "none" && o.binding)
       for (let a of [r, i]) {
@@ -40907,7 +40917,14 @@ var Cl = {
         type: "number",
         default: "4",
         required: !1,
-        help: "Presigned link lifetime in hours",
+        help: "Presigned link lifetime in hours (capped at 24h, i-harbor limit)",
+      },
+      {
+        name: "download_via_proxy",
+        type: "bool",
+        default: "false",
+        required: !1,
+        help: "Always stream downloads through the server instead of presigned links (enable for CSTCloud/i-harbor)",
       },
       {
         name: "placeholder",
@@ -44075,6 +44092,14 @@ wt.get("/*", async (s) => {
               )?.proxy_download
               f !== !1 && f !== "false" && f !== "0" && (h = !0)
             }
+            if (!h && (c === "s3" || c === "doge")) {
+              let f = (
+                typeof o.storage.addition == "string"
+                  ? JSON.parse(o.storage.addition || "{}")
+                  : o.storage.addition || {}
+              )?.download_via_proxy
+              ;(f === !0 || f === "true" || f === "1") && (h = !0)
+            }
             if (h) {
               console.log(
                 `[rawRouter] Proxying download for '${i}' via ${o.storage.driver}`,
@@ -44093,8 +44118,28 @@ wt.get("/*", async (s) => {
                   ),
                   delete p.Range,
                   (y = await fetch(u.raw_url, { headers: p }))),
-                !y.ok)
+                !y.ok && (y.status === 403 || y.status === 401))
               ) {
+                let A = d
+                if (typeof A.fetchObjectResponse == "function") {
+                  console.warn(
+                    `[rawRouter] Presigned URL rejected (${y.status}) for '${i}', retrying with direct signed request`,
+                  )
+                  try {
+                    let C = {},
+                      k = s.req.header("Range")
+                    k && (C.Range = k)
+                    let D = await A.fetchObjectResponse(i, o.physical, C)
+                    D.ok && (y = D)
+                  } catch (C) {
+                    console.warn(
+                      `[rawRouter] Direct signed fetch failed for '${i}':`,
+                      C,
+                    )
+                  }
+                }
+              }
+              if (!y.ok) {
                 let A = await y.text().catch(() => "")
                 return (
                   console.error(

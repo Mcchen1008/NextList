@@ -161,11 +161,26 @@ export class S3Driver implements StorageDriver {
     )
   }
 
+  /**
+   * Fetch object content with a server-side signed-header request.
+   * Optional capability consumed by the raw proxy router: when a presigned
+   * URL is rejected by an S3-compatible service with non-standard presign
+   * verification (e.g. i-harbor / CSTCloud), the proxy retries through this.
+   */
+  async fetchObjectResponse(
+    virtualPath: string,
+    physicalPath: string,
+    extraHeaders: Record<string, string> = {},
+  ): Promise<Response> {
+    await this.checkDogeToken()
+    const remotePath = this.getRemotePath(physicalPath)
+    return await this.client.getObjectResponse(remotePath, extraHeaders)
+  }
+
   async get(virtualPath: string, physicalPath: string): Promise<FileItem> {
     await this.checkDogeToken()
     const remotePath = this.getRemotePath(physicalPath)
     const head = await this.client.headObject(remotePath)
-
     if (head) {
       const fileName = getBaseName(remotePath)
       return this.fileItemFromS3(

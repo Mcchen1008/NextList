@@ -644,6 +644,24 @@ export class S3Client {
     }
   }
 
+  /**
+   * Fetch object content with a server-side SigV4 signed-header GET and
+   * return the raw Response (streaming body preserved).
+   *
+   * Used as a fallback when presigned URLs are rejected by the upstream:
+   * i-harbor (CSTCloud s3.cstcloud.cn) computes presigned-URL signatures
+   * over a canonical query string that INCLUDES X-Amz-Signature, which no
+   * standard client can produce — header-based auth is unaffected.
+   */
+  public async getObjectResponse(
+    key: string,
+    extraHeaders: Record<string, string> = {},
+  ): Promise<Response> {
+    const cleanKey = getKey(key, false)
+    const url = this.getUrl(cleanKey)
+    return await this.fetch("GET", url, null, extraHeaders)
+  }
+
   public async getLink(
     key: string,
     fileName: string,
@@ -654,7 +672,12 @@ export class S3Client {
     addFilenameToDisposition = false,
   ): Promise<{ url: string; headers?: Record<string, string> }> {
     const cleanKey = getKey(key, false)
-    const expireSeconds = Math.max(60, Math.floor(signUrlExpireHours * 3600))
+    // Cap at 86400s (24h): i-harbor (CSTCloud s3.cstcloud.cn) rejects
+    // presigned URLs whose X-Amz-Expires exceeds 86400 (InvalidSecurity).
+    const expireSeconds = Math.min(
+      86400,
+      Math.max(60, Math.floor(signUrlExpireHours * 3600)),
+    )
     const rawS3Url = this.getUrl(cleanKey)
 
     if (customHost) {
@@ -755,7 +778,11 @@ export class S3Client {
   ): Promise<{ upload_url: string; method: string }> {
     const fullPath = joinPath(dstDir, fileName)
     const cleanKey = getKey(fullPath, false)
-    const expireSeconds = Math.max(60, Math.floor(signUrlExpireHours * 3600))
+    // Same 24h cap as getLink (i-harbor X-Amz-Expires upper bound).
+    const expireSeconds = Math.min(
+      86400,
+      Math.max(60, Math.floor(signUrlExpireHours * 3600)),
+    )
     let targetUrl = this.getUrl(cleanKey)
 
     if (directUploadHost) {

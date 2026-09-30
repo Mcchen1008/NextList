@@ -94,7 +94,14 @@ export const s3DriverConfig = {
       type: "number",
       default: "4",
       required: false,
-      help: "Presigned link lifetime in hours",
+      help: "Presigned link lifetime in hours (capped at 24h, i-harbor limit)",
+    },
+    {
+      name: "download_via_proxy",
+      type: "bool",
+      default: "false",
+      required: false,
+      help: "Always stream downloads through the server instead of presigned links (enable for CSTCloud/i-harbor)",
     },
     {
       name: "placeholder",

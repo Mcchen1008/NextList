@@ -123,6 +123,22 @@ rawRouter.get("/*", async (c) => {
                 useProxy = true
               }
             }
+            // S3 storages can opt IN to proxying: useful against services
+            // whose presigned URLs fail verification (i-harbor/CSTCloud).
+            if (!useProxy && (normDriver === "s3" || normDriver === "doge")) {
+              const addition =
+                typeof resolved.storage.addition === "string"
+                  ? JSON.parse(resolved.storage.addition || "{}")
+                  : resolved.storage.addition || {}
+              const viaProxy = addition?.download_via_proxy
+              if (
+                viaProxy === true ||
+                viaProxy === "true" ||
+                viaProxy === "1"
+              ) {
+                useProxy = true
+              }
+            }
             if (useProxy) {
               console.log(
                 `[rawRouter] Proxying download for '${reqPath}' via ${resolved.storage.driver}`,
@@ -149,6 +165,42 @@ rawRouter.get("/*", async (c) => {
                 )
                 delete headers["Range"]
                 upstreamRes = await fetch(fileItem.raw_url, { headers })
+              }
+
+              // Some S3-compatible services (i-harbor used by CSTCloud's
+              // s3.cstcloud.cn) verify presigned URLs over a canonical query
+              // string that includes X-Amz-Signature, so every standard
+              // presigned link is rejected with 401/403. Drivers exposing
+              // fetchObjectResponse support a server-side signed retry.
+              if (
+                !upstreamRes.ok &&
+                (upstreamRes.status === 403 || upstreamRes.status === 401)
+              ) {
+                const anyDriver = driver as any
+                if (typeof anyDriver.fetchObjectResponse === "function") {
+                  console.warn(
+                    `[rawRouter] Presigned URL rejected (${upstreamRes.status}) for '${reqPath}', retrying with direct signed request`,
+                  )
+                  try {
+                    const directHeaders: Record<string, string> = {}
+                    const rangeHeader = c.req.header("Range")
+                    if (rangeHeader) directHeaders["Range"] = rangeHeader
+                    const directRes: Response =
+                      await anyDriver.fetchObjectResponse(
+                        reqPath,
+                        resolved.physical,
+                        directHeaders,
+                      )
+                    if (directRes.ok) {
+                      upstreamRes = directRes
+                    }
+                  } catch (e) {
+                    console.warn(
+                      `[rawRouter] Direct signed fetch failed for '${reqPath}':`,
+                      e,
+                    )
+                  }
+                }
               }
 
               // Upstream returned a non-2xx status: don't silently pass

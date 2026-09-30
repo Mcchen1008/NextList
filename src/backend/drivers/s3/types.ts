@@ -18,6 +18,7 @@ export interface S3Addition {
   add_filename_to_disposition?: boolean
   enable_direct_upload?: boolean
   direct_upload_host?: string
+  download_via_proxy?: string | boolean
   user_agent?: string
   order_by?: "name" | "size" | "modified" | string
   order_direction?: "asc" | "desc" | string
