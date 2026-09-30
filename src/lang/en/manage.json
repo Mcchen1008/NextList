@@ -21,7 +21,32 @@
     "ldap": "LDAP",
     "s3": "S3",
     "ftp": "FTP",
-    "traffic": "Traffic"
+    "traffic": "Traffic",
+    "logs": "Operation Logs"
+  },
+  "logs": {
+    "all_logs": "all logs",
+    "search": "Search",
+    "empty": "No log entries yet",
+    "filter_username": "Filter by username",
+    "filter_action": "Action type",
+    "filter_all_actions": "All actions",
+    "filter_result": "Result",
+    "filter_all_results": "All results",
+    "filter_keyword": "Search by path / error",
+    "result_success": "Success",
+    "result_failed": "Failed",
+    "col_time": "Time",
+    "col_user": "User",
+    "col_action": "Action",
+    "col_paths": "Target Paths",
+    "col_result": "Result",
+    "col_ip": "IP Address",
+    "col_duration": "Duration",
+    "stat_total": "Total Logs",
+    "stat_today": "Today",
+    "stat_failed": "Failed",
+    "stat_users": "Users"
   },
   "dashboard": {
     "kv_connected_title": "KV Storage Sync: Connected & Healthy",

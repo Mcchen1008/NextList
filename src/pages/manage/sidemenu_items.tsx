@@ -11,6 +11,7 @@ import {
   BsFront,
   BsHddNetwork,
   BsArrowLeftRight,
+  BsJournalText,
 } from "solid-icons/bs"
 import { FiLogIn } from "solid-icons/fi"
 import { SiMetabase } from "solid-icons/si"
@@ -119,6 +120,12 @@ export const side_menu_items: SideMenuItem[] = [
     to: "/@manage/shares",
     role: UserRole.GENERAL,
     component: lazy(() => import("./shares/Shares")),
+  },
+  {
+    title: "manage.sidemenu.logs",
+    icon: BsJournalText,
+    to: "/@manage/logs",
+    component: lazy(() => import("./logs/Logs")),
   },
   {
     title: "manage.sidemenu.metas",

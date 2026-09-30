@@ -21,7 +21,32 @@
     "ldap": "LDAP 认证",
     "s3": "S3 服务",
     "ftp": "FTP 服务",
-    "traffic": "流量统计"
+    "traffic": "流量统计",
+    "logs": "操作日志"
+  },
+  "logs": {
+    "all_logs": "所有日志",
+    "search": "查询",
+    "empty": "暂无日志记录",
+    "filter_username": "按账号筛选",
+    "filter_action": "操作类型",
+    "filter_all_actions": "全部操作",
+    "filter_result": "操作结果",
+    "filter_all_results": "全部结果",
+    "filter_keyword": "按路径/错误搜索",
+    "result_success": "成功",
+    "result_failed": "失败",
+    "col_time": "时间",
+    "col_user": "账号",
+    "col_action": "操作",
+    "col_paths": "目标路径",
+    "col_result": "结果",
+    "col_ip": "IP 地址",
+    "col_duration": "耗时",
+    "stat_total": "日志总数",
+    "stat_today": "今日操作",
+    "stat_failed": "失败操作",
+    "stat_users": "操作用户数"
   },
   "dashboard": {
     "kv_connected_title": "KV 存储同步：已连接且运行正常",

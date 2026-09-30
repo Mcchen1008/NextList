@@ -1,4 +1,5 @@
 import { Hono } from "hono"
+import type { Context } from "hono"
 import {
   listItems,
   getItem,
@@ -15,9 +16,54 @@ import {
 import { searchItems } from "../internal/op/search"
 import { resolveShare } from "../internal/op/share"
 import { getDb } from "../internal/model/db"
+import { logOp } from "../internal/model/oplog"
+import { getUserFromContext } from "./middlewares"
 import { normPath } from "../compat/openlist"
 
 export const fsRouter = new Hono()
+
+/**
+ * 记录文件操作日志：谁（账号）在什么时候对哪些路径做了什么。
+ * fire-and-forget —— 任何日志失败都不影响主业务。
+ */
+async function recordFileOp(
+  c: Context,
+  action: string,
+  paths: string[],
+  options: {
+    details?: Record<string, any>
+    error?: string
+    startedAt?: number
+  } = {},
+): Promise<void> {
+  try {
+    const user = await getUserFromContext(c).catch(() => null)
+    const ip =
+      c.req.header("cf-connecting-ip") ||
+      c.req.header("x-real-ip") ||
+      c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ||
+      "unknown"
+    await logOp(
+      {
+        user_id: user?.id,
+        username: user?.username || "guest",
+        action,
+        paths,
+        details: options.details,
+        ip,
+        user_agent: c.req.header("user-agent"),
+        success: !options.error,
+        error: options.error,
+        duration_ms: options.startedAt
+          ? Date.now() - options.startedAt
+          : undefined,
+      },
+      c.env,
+    )
+  } catch (err) {
+    console.warn("[FileOp] Failed to record operation log:", err)
+  }
+}
 
 /**
  * OpenList-compatible meta (directory) password check.
@@ -362,61 +408,126 @@ fsRouter.post("/get", async (c) => {
 fsRouter.post("/mkdir", async (c) => {
   const body = await c.req.json().catch(() => ({}))
   const reqPath = body.path || "/"
+  const startedAt = Date.now()
   try {
     await makeDirectory(reqPath)
+    void recordFileOp(c, "mkdir", [reqPath], { startedAt })
     return c.json({ code: 200, message: "success", data: null })
   } catch (e: any) {
+    void recordFileOp(c, "mkdir", [reqPath], {
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
 
 fsRouter.post("/rename", async (c) => {
   const { path: oldPath, name: newName } = await c.req.json().catch(() => ({}))
+  const startedAt = Date.now()
   try {
     await renameItem(oldPath, newName)
+    void recordFileOp(c, "rename", [oldPath, newName], { startedAt })
     return c.json({ code: 200, message: "success", data: null })
   } catch (e: any) {
+    void recordFileOp(c, "rename", [oldPath, newName], {
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
 
 fsRouter.post("/remove", async (c) => {
   const { dir, names } = await c.req.json().catch(() => ({}))
+  const startedAt = Date.now()
+  const targets =
+    names && names.length > 0
+      ? names.map((n: string) => `${dir?.replace(/\/+$/, "")}/${n}`)
+      : [dir || "/"]
   try {
     await removeItems(dir, names)
+    void recordFileOp(c, "remove", targets, { startedAt })
     return c.json({ code: 200, message: "success", data: null })
   } catch (e: any) {
+    void recordFileOp(c, "remove", targets, {
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
 
 fsRouter.post("/move", async (c) => {
   const { src_dir, dst_dir, names } = await c.req.json().catch(() => ({}))
+  const startedAt = Date.now()
   try {
     await moveItems(src_dir, dst_dir, names)
+    void recordFileOp(
+      c,
+      "move",
+      names?.map((n: string) => `${src_dir?.replace(/\/+$/, "")}/${n}`) || [
+        src_dir || "",
+      ],
+      {
+        details: { dst_dir },
+        startedAt,
+      },
+    )
     return c.json({ code: 200, message: "success", data: null })
   } catch (e: any) {
+    void recordFileOp(c, "move", [src_dir || ""], {
+      details: { dst_dir, names },
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
 
 fsRouter.post("/copy", async (c) => {
   const { src_dir, dst_dir, names } = await c.req.json().catch(() => ({}))
+  const startedAt = Date.now()
   try {
     await copyItems(src_dir, dst_dir, names)
+    void recordFileOp(
+      c,
+      "copy",
+      names?.map((n: string) => `${src_dir?.replace(/\/+$/, "")}/${n}`) || [
+        src_dir || "",
+      ],
+      {
+        details: { dst_dir },
+        startedAt,
+      },
+    )
     return c.json({ code: 200, message: "success", data: null })
   } catch (e: any) {
+    void recordFileOp(c, "copy", [src_dir || ""], {
+      details: { dst_dir, names },
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
 
 fsRouter.put("/put", async (c) => {
   const reqPath = decodeURIComponent(c.req.header("File-Path") || "")
+  const startedAt = Date.now()
   try {
     const buffer = await c.req.arrayBuffer()
     await putItem(reqPath, Buffer.from(buffer))
+    void recordFileOp(c, "upload", [reqPath], {
+      details: { size: buffer.byteLength },
+      startedAt,
+    })
     return c.json({ code: 200, message: "success", data: null })
   } catch (e: any) {
+    void recordFileOp(c, "upload", [reqPath], {
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
@@ -424,6 +535,7 @@ fsRouter.put("/put", async (c) => {
 // PUT multipart form upload — frontend uploads/form.ts
 fsRouter.put("/form", async (c) => {
   const reqPath = decodeURIComponent(c.req.header("File-Path") || "")
+  const startedAt = Date.now()
   try {
     const body = await c.req.parseBody()
     const file = body["file"] as File | undefined
@@ -439,8 +551,16 @@ fsRouter.put("/form", async (c) => {
     }
     const buffer = await file.arrayBuffer()
     await putItem(reqPath, Buffer.from(buffer))
+    void recordFileOp(c, "upload", [reqPath], {
+      details: { size: buffer.byteLength },
+      startedAt,
+    })
     return c.json({ code: 200, message: "success", data: null })
   } catch (e: any) {
+    void recordFileOp(c, "upload", [reqPath], {
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
@@ -448,6 +568,7 @@ fsRouter.put("/form", async (c) => {
 // Batch rename — frontend fsBatchRename
 fsRouter.post("/batch_rename", async (c) => {
   const { src_dir, rename_objects } = await c.req.json().catch(() => ({}))
+  const startedAt = Date.now()
   if (
     !src_dir ||
     !Array.isArray(rename_objects) ||
@@ -464,6 +585,14 @@ fsRouter.post("/batch_rename", async (c) => {
   }
   try {
     const { renamed, errors } = await batchRenameItems(src_dir, rename_objects)
+    const renamedPaths = (rename_objects || []).map(
+      (obj: any) =>
+        `${src_dir?.replace(/\/+$/, "")}/${obj?.new_name || obj?.src_name || ""}`,
+    )
+    void recordFileOp(c, "batch_rename", renamedPaths, {
+      details: { count: renamed },
+      startedAt,
+    })
     if (errors.length > 0) {
       return c.json({
         code: 400,
@@ -477,6 +606,10 @@ fsRouter.post("/batch_rename", async (c) => {
       data: { renamed, errors: [] },
     })
   } catch (e: any) {
+    void recordFileOp(c, "batch_rename", [src_dir || ""], {
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
@@ -484,6 +617,7 @@ fsRouter.post("/batch_rename", async (c) => {
 // Remove empty directories under src_dir — frontend fsRemoveEmptyDirectory
 fsRouter.post("/remove_empty_directory", async (c) => {
   const { src_dir } = await c.req.json().catch(() => ({}))
+  const startedAt = Date.now()
   if (!src_dir) {
     return c.json(
       { code: 400, message: "src_dir is required", data: null },
@@ -492,8 +626,16 @@ fsRouter.post("/remove_empty_directory", async (c) => {
   }
   try {
     const removed = await removeEmptyDirectories(src_dir)
+    void recordFileOp(c, "remove_empty_directory", [src_dir], {
+      details: { removed },
+      startedAt,
+    })
     return c.json({ code: 200, message: "success", data: { removed } })
   } catch (e: any) {
+    void recordFileOp(c, "remove_empty_directory", [src_dir], {
+      error: e.message,
+      startedAt,
+    })
     return c.json({ code: 500, message: e.message, data: null })
   }
 })
